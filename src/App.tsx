@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import type { Difficulty } from "./types";
-import { setLocale, t, useLocale } from "./i18n";
+import { t, useLocale } from "./i18n";
 import { ColorGuessingGame } from "./components/ColorGuessingGame";
 import { HomeView } from "./components/HomeView";
+import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { RecordsView } from "./components/RecordsView";
 import { extractColorsFromImage } from "./utils/colorExtract";
 import {
@@ -205,27 +206,19 @@ export default function App() {
             </div>
           )}
           {view === "home" && <div className="flex-1" aria-hidden />}
-          {view !== "records" ? (
-            <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setLocale(locale === "en" ? "zh" : "en")}
-                className="min-h-11 rounded-lg px-2 py-2 text-xs text-stone-500 transition-colors hover:text-stone-700"
-              >
-                {locale === "en" ? "中文" : "EN"}
-              </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <LanguageSwitcher />
+            {view !== "records" && (
               <button
                 type="button"
                 onClick={openRecords}
-                className="text-label min-h-11 shrink-0 rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
+                className="text-label inline-flex min-h-11 w-[9.25rem] shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
               >
                 {t("records.title")}
                 {records.length > 0 ? ` (${records.length})` : ""}
               </button>
-            </div>
-          ) : (
-            <div className="w-px shrink-0" aria-hidden />
-          )}
+            )}
+          </div>
         </div>
       </header>
       )}

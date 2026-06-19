@@ -46,7 +46,8 @@ export function RecordsView({
     ? [...records].sort((a, b) => b.totalScore - a.totalScore)
     : records;
 
-  const dateLocale = locale === "zh" ? "zh-CN" : "en-US";
+  const dateLocale =
+    locale === "zh-Hant" ? "zh-TW" : locale === "zh-Hans" ? "zh-CN" : "en-US";
 
   function handleDelete(id: string, e: React.MouseEvent) {
     e.stopPropagation();
