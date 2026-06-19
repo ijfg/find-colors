@@ -1,9 +1,13 @@
+import { t, useLocale } from "../i18n";
+
 interface PhotoUploadProps {
   onSelect: (file: File) => void;
   loading?: boolean;
 }
 
 export function PhotoUpload({ onSelect, loading }: PhotoUploadProps) {
+  useLocale();
+
   return (
     <label
       className={`
@@ -53,7 +57,7 @@ export function PhotoUpload({ onSelect, loading }: PhotoUploadProps) {
         </span>
       )}
       <p className="text-body mt-3 text-sm">
-        {loading ? "生成中…" : "选照片"}
+        {loading ? t("home.generating") : t("home.pickPhoto")}
       </p>
     </label>
   );

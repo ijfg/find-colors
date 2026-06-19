@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Position } from "../types";
 import { useCoarsePointer } from "../hooks/useMedia";
+import { t, useLocale } from "../i18n";
 import { rgbToHex } from "../utils/colorExtract";
 import {
   computePhotoCanvasLayout,
@@ -228,6 +229,7 @@ export function PhotoCanvasPicker({
   fillContainer = false,
   overlayControls = false,
 }: PhotoCanvasPickerProps) {
+  useLocale();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -909,7 +911,7 @@ export function PhotoCanvasPicker({
             className={`flex items-center justify-center rounded-md bg-white text-sm ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
               overlayControls ? "h-7 w-7" : fillContainer ? "h-9 w-9" : "min-h-11 min-w-11 text-base"
             }`}
-            aria-label="缩小"
+            aria-label={t("picker.zoomOut")}
           >
             −
           </button>
@@ -927,7 +929,7 @@ export function PhotoCanvasPicker({
             className={`flex items-center justify-center rounded-md bg-white text-sm ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
               overlayControls ? "h-7 w-7" : fillContainer ? "h-9 w-9" : "min-h-11 min-w-11 text-base"
             }`}
-            aria-label="放大"
+            aria-label={t("picker.zoomIn")}
           >
             +
           </button>
@@ -943,14 +945,14 @@ export function PhotoCanvasPicker({
                   : "min-h-11 px-3 py-2"
             }`}
           >
-            重置
+            {t("picker.reset")}
           </button>
           </div>
           {!overlayControls && !fillContainer && (
             <span className="w-full text-center text-stone-400 sm:w-auto">
               {coarsePointer
-                ? "双指缩放 · 准心=取色点 · 松手确认"
-                : "滚轮缩放 · 拖动查看颜色 · 点击取色"}
+                ? t("picker.hintTouch")
+                : t("picker.hintMouse")}
             </span>
           )}
         </div>

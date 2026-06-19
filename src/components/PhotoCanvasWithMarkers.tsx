@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Position } from "../types";
 import { useCoarsePointer } from "../hooks/useMedia";
+import { t, useLocale } from "../i18n";
 import { hexToRgb } from "../utils/colorExtract";
 import {
   computePhotoCanvasLayout,
@@ -318,6 +319,7 @@ export function PhotoCanvasWithMarkers({
   selectedIndex,
   onSelectedIndexChange,
 }: PhotoCanvasWithMarkersProps) {
+  useLocale();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetCropRef = useRef<HTMLCanvasElement>(null);
   const guessCropRef = useRef<HTMLCanvasElement>(null);
@@ -483,7 +485,7 @@ export function PhotoCanvasWithMarkers({
     >
       <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
         <span className="text-center text-[10px] font-medium uppercase tracking-wide text-stone-500">
-          第 {activeIndex + 1} 格 · 目标
+          {t("game.cellTarget", { n: activeIndex + 1 })}
         </span>
         <canvas
           ref={targetCropRef}
@@ -499,7 +501,7 @@ export function PhotoCanvasWithMarkers({
       </div>
       <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
         <span className="text-center text-[10px] font-medium uppercase tracking-wide text-stone-500">
-          第 {activeIndex + 1} 格 · 你的
+          {t("game.cellYours", { n: activeIndex + 1 })}
         </span>
         <canvas
           ref={guessCropRef}
@@ -521,7 +523,7 @@ export function PhotoCanvasWithMarkers({
             ? "-right-1.5 -top-1.5 h-6 w-6 text-xs"
             : "-right-2 -top-2 h-7 w-7 text-sm"
         }`}
-        aria-label="关闭对比"
+        aria-label={t("game.closeCompare")}
       >
         ×
       </button>

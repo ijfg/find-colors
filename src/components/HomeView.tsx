@@ -1,4 +1,5 @@
 import type { Difficulty } from "../types";
+import { t, useLocale } from "../i18n";
 import { DifficultySelector } from "./DifficultySelector";
 import { PhotoUpload } from "./PhotoUpload";
 
@@ -17,10 +18,12 @@ export function HomeView({
   loading,
   error,
 }: HomeViewProps) {
+  useLocale();
+
   return (
     <section className="home-landing mx-auto grid w-full max-w-sm flex-1 grid-rows-[var(--home-hero-row)_auto_1fr] sm:max-w-md">
       <div className="flex flex-col justify-end pb-6 text-center sm:pb-8">
-        <h2 className="text-title text-[1.75rem] sm:text-[2rem]">找颜色</h2>
+        <h2 className="text-title text-[1.75rem] sm:text-[2rem]">{t("appName")}</h2>
         <DifficultySelector value={difficulty} onChange={onDifficultyChange} />
       </div>
 

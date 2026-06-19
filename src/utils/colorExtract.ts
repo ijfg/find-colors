@@ -575,7 +575,7 @@ export async function extractColorsFromImage(
   canvas.height = Math.max(1, Math.round(img.height * scale));
 
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("无法创建画布");
+  if (!ctx) throw new Error("Failed to create canvas");
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -600,7 +600,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("图片加载失败"));
+    img.onerror = () => reject(new Error("Image load failed"));
     img.src = src;
   });
 }

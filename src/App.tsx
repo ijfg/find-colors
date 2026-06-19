@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Difficulty } from "./types";
+import { setLocale, t, useLocale } from "./i18n";
 import { ColorGuessingGame } from "./components/ColorGuessingGame";
 import { HomeView } from "./components/HomeView";
 import { RecordsView } from "./components/RecordsView";
@@ -37,6 +38,7 @@ function readInitialAppState() {
 }
 
 export default function App() {
+  const locale = useLocale();
   const initial = readInitialAppState();
   const [view, setView] = useState<View>(initial.view);
   const [difficulty, setDifficulty] = useState<Difficulty>(initial.difficulty);
@@ -48,6 +50,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [records, setRecords] = useState(() => loadRecords());
   const immersiveGame = view === "game" && seed !== null;
+
+  useEffect(() => {
+    document.title = t("appName");
+  }, [locale]);
 
   useEffect(() => {
     if (!seed) return;
@@ -119,7 +125,7 @@ export default function App() {
       setSeed(nextSeed);
       setView("game");
     } catch {
-      setError("无法处理该图片，请换一张试试。");
+      setError(t("home.cantProcess"));
     } finally {
       setLoading(false);
     }
@@ -143,7 +149,7 @@ export default function App() {
         targetPositions: positions,
       });
     } catch {
-      setError("无法重新生成目标色，请换一张试试。");
+      setError(t("home.cantRegenerate"));
     } finally {
       setLoading(false);
     }
@@ -195,18 +201,28 @@ export default function App() {
         >
           {view !== "home" && (
             <div className="min-w-0">
-              <h1 className="text-title text-lg sm:text-xl">找颜色</h1>
+              <h1 className="text-title text-lg sm:text-xl">{t("appName")}</h1>
             </div>
           )}
           {view === "home" && <div className="flex-1" aria-hidden />}
           {view !== "records" ? (
-            <button
-              type="button"
-              onClick={openRecords}
-              className="text-label min-h-11 shrink-0 rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
-            >
-              我的记录{records.length > 0 ? ` (${records.length})` : ""}
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setLocale(locale === "en" ? "zh" : "en")}
+                className="min-h-11 rounded-lg px-2 py-2 text-xs text-stone-500 transition-colors hover:text-stone-700"
+              >
+                {locale === "en" ? "中文" : "EN"}
+              </button>
+              <button
+                type="button"
+                onClick={openRecords}
+                className="text-label min-h-11 shrink-0 rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
+              >
+                {t("records.title")}
+                {records.length > 0 ? ` (${records.length})` : ""}
+              </button>
+            </div>
           ) : (
             <div className="w-px shrink-0" aria-hidden />
           )}

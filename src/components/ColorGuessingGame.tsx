@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Difficulty, GameResult, Position } from "../types";
+import { t, useLocale } from "../i18n";
 import { useMobileImmersive, useMobileLandscapeLayout } from "../hooks/useMedia";
 import { ColorGrid } from "./ColorGrid";
 import { PhotoCanvasPicker } from "./PhotoCanvasPicker";
@@ -63,6 +64,7 @@ export function ColorGuessingGame({
   playAgainBusy = false,
   onSaved,
 }: ColorGuessingGameProps) {
+  useLocale();
   const count = difficulty;
   const dim = dimFromDifficulty(difficulty);
 
@@ -211,7 +213,7 @@ export function ColorGuessingGame({
               : "cursor-not-allowed bg-stone-200 text-stone-400"
           }`}
         >
-          <span>提交</span>
+          <span>{t("game.submit")}</span>
           {!allFilled && (
             <span className={vertical ? "text-[10px] font-normal opacity-90" : ""}>
               ({filledCount}/{count})
@@ -231,7 +233,7 @@ export function ColorGuessingGame({
           }`}
           disabled={filledCount === 0}
         >
-          {mobile || vertical ? "清空" : "清空重填"}
+          {mobile || vertical ? t("game.clear") : t("game.clearLong")}
         </button>
         <button
           type="button"
@@ -244,7 +246,7 @@ export function ColorGuessingGame({
                 : "w-full sm:w-auto"
           }`}
         >
-          {mobile || vertical ? "换图" : "换一张照片"}
+          {mobile || vertical ? t("game.newPhoto") : t("game.newPhotoLong")}
         </button>
       </div>
     );
@@ -327,10 +329,10 @@ export function ColorGuessingGame({
       if (ok) {
         onSaved?.();
       } else {
-        setSaveError("得分已显示，但记录未能写入（可能是浏览器存储空间不足）。");
+        setSaveError(t("game.saveErrorWrite"));
       }
     } catch {
-      setSaveError("得分已显示，但保存记录时出错。");
+      setSaveError(t("game.saveErrorGeneric"));
     } finally {
       setSaving(false);
     }
@@ -353,7 +355,7 @@ export function ColorGuessingGame({
         style={{ visibility: activeIndex === null ? "hidden" : "visible" }}
         aria-hidden={activeIndex === null}
       >
-        正在填第 {(activeIndex ?? 0) + 1} 格 · 在照片里点击取色
+        {t("game.fillingHint", { n: (activeIndex ?? 0) + 1 })}
         {activeIndex !== null && userColors[activeIndex] && (
           <button
             type="button"
@@ -363,7 +365,7 @@ export function ColorGuessingGame({
             }}
             className="ml-2 text-stone-400 underline"
           >
-            清除
+            {t("game.clearCell")}
           </button>
         )}
       </p>
@@ -395,7 +397,7 @@ export function ColorGuessingGame({
               colors={targetColors}
               dim={dim}
               variant="sidebar"
-              label="目标"
+              label={t("game.target")}
               selectedIndex={activeIndex}
               onSelectCell={submitted ? undefined : handleSelectTarget}
               className="min-h-0 flex-1"
@@ -441,7 +443,7 @@ export function ColorGuessingGame({
               colors={userColors}
               dim={dim}
               variant="sidebar"
-              label={`你的 (${filledCount}/${count})`}
+              label={t("game.yoursCount", { filled: filledCount, count })}
               selectedIndex={activeIndex}
               onSelectCell={submitted ? undefined : handleSelectUserCell}
               allowEmpty
@@ -461,7 +463,7 @@ export function ColorGuessingGame({
 
     return (
       <p className="shrink-0 px-4 pt-2 pb-4 text-center text-xs text-stone-500">
-        实线 = 目标色 · 虚线 = 你的 · 点击标记查看截图
+        {t("game.legend")}
       </p>
     );
   }
@@ -507,7 +509,7 @@ export function ColorGuessingGame({
                   colors={targetColors}
                   dim={dim}
                   variant="flank"
-                  label="目标"
+                  label={t("game.target")}
                   selectedIndex={activeIndex}
                   onSelectCell={handleSelectTarget}
                 />
@@ -518,7 +520,7 @@ export function ColorGuessingGame({
                   colors={userColors}
                   dim={dim}
                   variant="flank"
-                  label={`你的 (${filledCount}/${count})`}
+                  label={t("game.yoursCount", { filled: filledCount, count })}
                   selectedIndex={activeIndex}
                   onSelectCell={handleSelectUserCell}
                   allowEmpty
@@ -552,7 +554,7 @@ export function ColorGuessingGame({
             colors={targetColors}
             dim={dim}
             variant="toolbar"
-            label="目标"
+            label={t("game.target")}
             selectedIndex={activeIndex}
             onSelectCell={submitted ? undefined : handleSelectTarget}
           />
@@ -574,7 +576,7 @@ export function ColorGuessingGame({
             colors={userColors}
             dim={dim}
             variant="toolbar"
-            label={`你的 (${filledCount}/${count})`}
+            label={t("game.yoursCount", { filled: filledCount, count })}
             selectedIndex={activeIndex}
             onSelectCell={submitted ? undefined : handleSelectUserCell}
             allowEmpty

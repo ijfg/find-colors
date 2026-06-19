@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       manifest: {
-        name: "找颜色",
-        short_name: "找颜色",
-        description: "拍张照片，猜猜照片里的颜色",
+        name: "Find Colors",
+        short_name: "FindColors",
+        description: "Pick a photo. Guess the colors.",
         theme_color: "#f3f1ec",
         background_color: "#f7f5f2",
         display: "standalone",

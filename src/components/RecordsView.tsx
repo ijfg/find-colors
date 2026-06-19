@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Difficulty, GameRecord } from "../types";
+import { t, useLocale } from "../i18n";
 import { ColorGrid } from "./ColorGrid";
 import { PhotoCanvasWithMarkers } from "./PhotoCanvasWithMarkers";
 
@@ -11,10 +12,10 @@ interface RecordsViewProps {
 }
 
 function difficultyLabel(d: Difficulty): string {
-  if (d === 1) return "1 色";
-  if (d === 4) return "4 色";
-  if (d === 9) return "9 色";
-  return "16 色";
+  if (d === 1) return t("difficulty.one");
+  if (d === 4) return t("difficulty.four");
+  if (d === 9) return t("difficulty.nine");
+  return t("difficulty.sixteen");
 }
 
 function dimFromDifficulty(d: Difficulty): 1 | 2 | 3 | 4 {
@@ -37,6 +38,7 @@ export function RecordsView({
   onDelete,
   onClearAll,
 }: RecordsViewProps) {
+  const locale = useLocale();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sortByScore, setSortByScore] = useState(false);
 
@@ -44,16 +46,18 @@ export function RecordsView({
     ? [...records].sort((a, b) => b.totalScore - a.totalScore)
     : records;
 
+  const dateLocale = locale === "zh" ? "zh-CN" : "en-US";
+
   function handleDelete(id: string, e: React.MouseEvent) {
     e.stopPropagation();
-    if (confirm("确定删除这条记录？")) {
+    if (confirm(t("records.confirmDelete"))) {
       onDelete(id);
       if (expandedId === id) setExpandedId(null);
     }
   }
 
   function handleClearAll() {
-    if (confirm("确定清空所有记录？此操作不可恢复。")) {
+    if (confirm(t("records.confirmClearAll"))) {
       onClearAll();
     }
   }
@@ -66,7 +70,7 @@ export function RecordsView({
           onClick={onBack}
           className="text-sm text-stone-600 hover:text-stone-800"
         >
-          ← 返回
+          ← {t("records.back")}
         </button>
         <div className="flex items-center gap-3">
           <button
@@ -74,7 +78,7 @@ export function RecordsView({
             onClick={() => setSortByScore((v) => !v)}
             className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-stone-600 ring-1 ring-stone-300 hover:bg-stone-50"
           >
-            {sortByScore ? "按时间排序" : "按分数排序"}
+            {sortByScore ? t("records.sortByTime") : t("records.sortByScore")}
           </button>
           {records.length > 0 && (
             <button
@@ -82,16 +86,14 @@ export function RecordsView({
               onClick={handleClearAll}
               className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-rose-500 ring-1 ring-rose-200 hover:bg-rose-50"
             >
-              清空所有记录
+              {t("records.clearAll")}
             </button>
           )}
         </div>
       </div>
 
       {records.length === 0 ? (
-        <p className="py-12 text-center text-stone-400">
-          还没有记录，玩一局并提交后会自动保存
-        </p>
+        <p className="py-12 text-center text-stone-400">{t("records.empty")}</p>
       ) : (
         <div className="mx-auto max-w-2xl space-y-3">
           {sorted.map((rec) => {
@@ -135,14 +137,14 @@ export function RecordsView({
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-stone-400">
-                      {new Date(rec.createdAt).toLocaleString("zh-CN")}
+                      {new Date(rec.createdAt).toLocaleString(dateLocale)}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={(e) => handleDelete(rec.id, e)}
                     className="shrink-0 rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-rose-500"
-                    aria-label="删除记录"
+                    aria-label={t("records.deleteAria")}
                   >
                     <svg
                       className="h-4 w-4"
@@ -173,13 +175,13 @@ export function RecordsView({
                           colors={rec.targetColors}
                           dim={dim}
                           size="md"
-                          label="目标色"
+                          label={t("records.targetColors")}
                         />
                         <ColorGrid
                           colors={rec.userColors}
                           dim={dim}
                           size="md"
-                          label="你的色"
+                          label={t("records.yourColors")}
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -188,7 +190,9 @@ export function RecordsView({
                             key={i}
                             className="rounded-lg bg-stone-50 p-2 text-center text-xs ring-1 ring-stone-200"
                           >
-                            <span className="text-stone-400">第 {i + 1} 格</span>
+                            <span className="text-stone-400">
+                              {t("records.cellLabel", { n: i + 1 })}
+                            </span>
                             <span className="ml-2 font-mono font-medium text-stone-700">
                               {score}
                             </span>

@@ -1,4 +1,5 @@
 import type { GameResult } from "../types";
+import { t, useLocale } from "../i18n";
 
 interface ScoreResultProps {
   result: GameResult;
@@ -10,12 +11,12 @@ interface ScoreResultProps {
   compact?: boolean;
 }
 
-function rating(score: number): { label: string; tone: string } {
-  if (score >= 90) return { label: "色感大师", tone: "text-emerald-600" };
-  if (score >= 75) return { label: "眼力不错", tone: "text-teal-600" };
-  if (score >= 60) return { label: "还可以", tone: "text-amber-600" };
-  if (score >= 40) return { label: "再练练", tone: "text-orange-500" };
-  return { label: "差得有点远", tone: "text-rose-500" };
+function rating(score: number): { labelKey: string; tone: string } {
+  if (score >= 90) return { labelKey: "score.ratings.master", tone: "text-emerald-600" };
+  if (score >= 75) return { labelKey: "score.ratings.sharp", tone: "text-teal-600" };
+  if (score >= 60) return { labelKey: "score.ratings.okay", tone: "text-amber-600" };
+  if (score >= 40) return { labelKey: "score.ratings.practice", tone: "text-orange-500" };
+  return { labelKey: "score.ratings.farOff", tone: "text-rose-500" };
 }
 
 export function ScoreResult({
@@ -27,8 +28,9 @@ export function ScoreResult({
   onSelectDetailIndex,
   compact = false,
 }: ScoreResultProps) {
+  useLocale();
   const { total, details } = result;
-  const { label, tone } = rating(total);
+  const { labelKey, tone } = rating(total);
 
   function handleSelectDetail(index: number) {
     const next = selectedDetailIndex === index ? null : index;
@@ -43,13 +45,15 @@ export function ScoreResult({
       data-preserve-selection
     >
       <div>
-        <p className="text-caption text-xs uppercase tracking-wider">总分</p>
+        <p className="text-caption text-xs uppercase tracking-wider">
+          {t("score.total")}
+        </p>
         <div className="mt-1 flex items-baseline gap-2">
           <span className={`text-score ${compact ? "text-4xl" : "text-5xl"} ${tone}`}>
             {total}
           </span>
           <span className="text-caption">/ 100</span>
-          <span className={`text-label ml-3 text-sm ${tone}`}>{label}</span>
+          <span className={`text-label ml-3 text-sm ${tone}`}>{t(labelKey)}</span>
         </div>
       </div>
 
@@ -73,7 +77,7 @@ export function ScoreResult({
               }`}
             >
               <div className="mb-2 flex items-center justify-between text-xs text-stone-400">
-                <span>第 {d.index + 1} 格</span>
+                <span>{t("score.cellLabel", { n: d.index + 1 })}</span>
                 <span className="font-mono font-medium text-stone-700">
                   {d.score}
                 </span>
@@ -84,14 +88,18 @@ export function ScoreResult({
                     className="h-10 w-full rounded-sm ring-1 ring-inset ring-stone-200/80"
                     style={{ backgroundColor: d.target }}
                   />
-                  <span className="text-[10px] text-stone-400">目标</span>
+                  <span className="text-[10px] text-stone-400">
+                    {t("score.targetSmall")}
+                  </span>
                 </div>
                 <div className="flex flex-1 flex-col items-center gap-1">
                   <div
                     className="h-10 w-full rounded-sm ring-1 ring-inset ring-stone-200/80"
                     style={{ backgroundColor: d.guess }}
                   />
-                  <span className="text-[10px] text-stone-400">你的</span>
+                  <span className="text-[10px] text-stone-400">
+                    {t("score.yoursSmall")}
+                  </span>
                 </div>
               </div>
               <p className="mt-2 text-center font-mono text-[11px] text-stone-400">
@@ -104,7 +112,7 @@ export function ScoreResult({
 
       {onSelectDetailIndex && selectedDetailIndex === null && (
         <p className="text-caption mt-3 text-center text-xs">
-          点击某一格，在照片上查看局部对比
+          {t("score.tapToInspect")}
         </p>
       )}
 
@@ -123,7 +131,7 @@ export function ScoreResult({
             compact ? "" : "sm:w-auto"
           }`}
         >
-          {playAgainBusy ? "生成中…" : "再玩一次"}
+          {playAgainBusy ? t("score.playAgainBusy") : t("score.playAgain")}
         </button>
         <button
           type="button"
@@ -132,7 +140,7 @@ export function ScoreResult({
             compact ? "" : "sm:w-auto"
           }`}
         >
-          换一张照片
+          {t("score.newPhoto")}
         </button>
       </div>
     </div>

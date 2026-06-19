@@ -1,3 +1,5 @@
+import { t, useLocale } from "../i18n";
+
 interface ColorGridProps {
   colors: string[];
   dim?: 1 | 2 | 3 | 4;
@@ -53,8 +55,12 @@ function renderGridCells(
         type="button"
         role="option"
         aria-selected={isSelected}
-        aria-label={isEmpty ? `空格 ${i + 1}` : `颜色 ${i + 1} ${color}`}
-        title={isEmpty ? "等待填色" : color}
+        aria-label={
+          isEmpty
+            ? t("a11y.emptyCell", { n: i + 1 })
+            : t("a11y.colorCell", { n: i + 1, hex: color })
+        }
+        title={isEmpty ? t("a11y.waitingFill") : color}
         onClick={(e) => {
           e.stopPropagation();
           onSelectCell?.(i);
@@ -93,6 +99,7 @@ export function ColorGrid({
   label,
   selectedTone = "stone",
 }: ColorGridProps) {
+  useLocale();
   const ringColor =
     selectedTone === "amber" ? "ring-amber-500" : "ring-stone-800";
 
@@ -110,7 +117,7 @@ export function ColorGrid({
       <div
         className={`flex min-h-0 w-full flex-col items-stretch gap-1.5 ${className}`}
         role="listbox"
-        aria-label={label ?? "色彩宫格"}
+        aria-label={label ?? t("a11y.colorGrid")}
         data-preserve-selection
       >
         {label && (
@@ -132,7 +139,9 @@ export function ColorGrid({
                 role="option"
                 aria-selected={isSelected}
                 aria-label={
-                  isEmpty ? `空格 ${i + 1}` : `颜色 ${i + 1} ${color}`
+                  isEmpty
+                    ? t("a11y.emptyCell", { n: i + 1 })
+                    : t("a11y.colorCell", { n: i + 1, hex: color })
                 }
                 onClick={(e) => {
                   e.stopPropagation();
@@ -169,7 +178,7 @@ export function ColorGrid({
       <div
         className={`flex flex-col items-center gap-2 ${className}`}
         role="listbox"
-        aria-label={label ?? "色彩宫格"}
+        aria-label={label ?? t("a11y.colorGrid")}
         data-preserve-selection
       >
         {label && (
@@ -204,7 +213,7 @@ export function ColorGrid({
       <div
         className={`flex w-full items-center gap-2 ${className}`}
         role="listbox"
-        aria-label={label ?? "色彩宫格"}
+        aria-label={label ?? t("a11y.colorGrid")}
         data-preserve-selection
       >
         {label && (
@@ -226,7 +235,9 @@ export function ColorGrid({
                 role="option"
                 aria-selected={isSelected}
                 aria-label={
-                  isEmpty ? `空格 ${i + 1}` : `颜色 ${i + 1} ${color}`
+                  isEmpty
+                    ? t("a11y.emptyCell", { n: i + 1 })
+                    : t("a11y.colorCell", { n: i + 1, hex: color })
                 }
                 onClick={(e) => {
                   e.stopPropagation();
@@ -269,7 +280,7 @@ export function ColorGrid({
       <div
         className={`grid ${colsRowsClass[dim]} ${sizeClasses[size]}`}
         role="listbox"
-        aria-label={label ?? "色彩宫格"}
+        aria-label={label ?? t("a11y.colorGrid")}
       >
         {Array.from({ length: total }, (_, i) => {
           const color = colors[i] ?? "";
@@ -284,9 +295,11 @@ export function ColorGrid({
               role="option"
               aria-selected={isSelected}
               aria-label={
-                isEmpty ? `空格 ${i + 1}` : `颜色 ${i + 1} ${color}`
+                isEmpty
+                  ? t("a11y.emptyCell", { n: i + 1 })
+                  : t("a11y.colorCell", { n: i + 1, hex: color })
               }
-              title={isEmpty ? "等待填色" : color}
+              title={isEmpty ? t("a11y.waitingFill") : color}
               onClick={(e) => {
                 e.stopPropagation();
                 onSelectCell?.(i);
