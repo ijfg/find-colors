@@ -176,13 +176,21 @@ export function RecordsView({
                           colors={rec.targetColors}
                           dim={dim}
                           size="md"
-                          label={t("records.targetColors")}
+                          label={t(
+                            rec.difficulty === 1
+                              ? "records.targetColor"
+                              : "records.targetColors",
+                          )}
                         />
                         <ColorGrid
                           colors={rec.userColors}
                           dim={dim}
                           size="md"
-                          label={t("records.yourColors")}
+                          label={t(
+                            rec.difficulty === 1
+                              ? "records.yourColor"
+                              : "records.yourColors",
+                          )}
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">

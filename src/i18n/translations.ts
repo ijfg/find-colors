@@ -169,10 +169,20 @@ export const translations = {
       "zh-Hans": "删除记录",
       "zh-Hant": "刪除記錄",
     },
+    targetColor: {
+      en: "Target color",
+      "zh-Hans": "目标色",
+      "zh-Hant": "目標色",
+    },
     targetColors: {
       en: "Target colors",
       "zh-Hans": "目标色",
       "zh-Hant": "目標色",
+    },
+    yourColor: {
+      en: "Your color",
+      "zh-Hans": "你的色",
+      "zh-Hant": "你的顏色",
     },
     yourColors: {
       en: "Your colors",

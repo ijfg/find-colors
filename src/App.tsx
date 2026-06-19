@@ -212,10 +212,12 @@ export default function App() {
               <button
                 type="button"
                 onClick={openRecords}
-                className="text-label inline-flex min-h-11 w-[9.25rem] shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
               >
                 {t("records.title")}
-                {records.length > 0 ? ` (${records.length})` : ""}
+                {records.length > 0 && (
+                  <span className="tabular-nums">({records.length})</span>
+                )}
               </button>
             )}
           </div>
