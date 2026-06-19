@@ -250,6 +250,7 @@ export function PhotoCanvasPicker({
     anchorCssX: number;
     anchorCssY: number;
   } | null>(null);
+  const pinchEndingRef = useRef(false);
 
   const coarsePointer = useCoarsePointer();
 
@@ -279,9 +280,11 @@ export function PhotoCanvasPicker({
     const ro = new ResizeObserver(update);
     ro.observe(el);
     window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
     };
   }, [maxHeightLimit]);
 
@@ -511,6 +514,7 @@ export function PhotoCanvasPicker({
     });
 
     if (pointersRef.current.size >= 2) {
+      pinchEndingRef.current = true;
       const dist = pinchDistance();
       const midCss = pinchMidpointCss();
       if (dist && midCss) {
@@ -549,6 +553,7 @@ export function PhotoCanvasPicker({
 
     if (pointersRef.current.size >= 2) {
       e.preventDefault();
+      pinchEndingRef.current = true;
       setHover(null);
 
       const dist = pinchDistance();
@@ -583,8 +588,7 @@ export function PhotoCanvasPicker({
     }
 
     if (pointersRef.current.size <= 1) {
-      const preview = !!dragRef.current;
-      updateHoverAt(e.clientX, e.clientY, preview);
+      updateHoverAt(e.clientX, e.clientY);
     }
   }
 
@@ -598,20 +602,11 @@ export function PhotoCanvasPicker({
   }
 
   function handlePointerUp(e: React.PointerEvent<HTMLCanvasElement>) {
+    const wasPinchEnding = pinchEndingRef.current;
+
     pointersRef.current.delete(e.pointerId);
     if (pointersRef.current.size < 2) {
       pinchRef.current = null;
-    }
-    if (pointersRef.current.size === 1) {
-      const remaining = [...pointersRef.current.entries()][0];
-      dragRef.current = {
-        pointerId: remaining[0],
-        startX: remaining[1].clientX,
-        startY: remaining[1].clientY,
-        startPanX: pan.x,
-        startPanY: pan.y,
-        moved: false,
-      };
     }
 
     const drag = dragRef.current;
@@ -619,20 +614,21 @@ export function PhotoCanvasPicker({
       const moved = drag.moved;
       dragRef.current = null;
 
-      if (!enabled) {
-        // no pick
-      } else if (moved) {
-        pickFromClient(e.clientX, e.clientY);
-      } else if (
-        Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) <
-        TAP_MOVE_THRESHOLD
+      if (
+        !wasPinchEnding &&
+        enabled &&
+        (moved ||
+          Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) <
+            TAP_MOVE_THRESHOLD)
       ) {
         pickFromClient(e.clientX, e.clientY);
       }
     }
 
     if (pointersRef.current.size === 0) {
+      pinchEndingRef.current = false;
       dragRef.current = null;
+      pinchRef.current = null;
     }
 
     try {
@@ -646,6 +642,7 @@ export function PhotoCanvasPicker({
     pointersRef.current.delete(e.pointerId);
     pinchRef.current = null;
     dragRef.current = null;
+    pinchEndingRef.current = false;
     setHover(null);
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
@@ -697,14 +694,13 @@ export function PhotoCanvasPicker({
     <div
       ref={containerRef}
       className={`flex w-full flex-col items-center gap-2 ${
-        fillContainer ? "h-full min-h-0" : ""
+        fillContainer ? "h-full max-h-full min-h-0 overflow-hidden" : ""
       } ${overlayControls ? "relative" : ""}`}
-      onClick={(e) => e.stopPropagation()}
     >
       <div
         className={`relative ${
           fillContainer
-            ? "flex min-h-0 w-full flex-1 items-center justify-center"
+            ? "flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden"
             : ""
         }`}
         style={
@@ -714,12 +710,17 @@ export function PhotoCanvasPicker({
         }
       >
         <div
-          className={`relative ${
+          className={`relative shrink-0 ${
             fillContainer ? "max-h-full max-w-full" : "h-full w-full"
           }`}
           style={
             fillContainer
-              ? { width: w || undefined, height: h || undefined }
+              ? {
+                  width: w || undefined,
+                  height: h || undefined,
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                }
               : undefined
           }
         >
@@ -728,6 +729,7 @@ export function PhotoCanvasPicker({
           className={`absolute inset-0 touch-none overflow-hidden ring-1 ring-stone-200 ${
             fillContainer ? "rounded-none" : "rounded-xl"
           }`}
+          data-preserve-selection
         >
           <div
             className="relative origin-top-left"
@@ -882,27 +884,39 @@ export function PhotoCanvasPicker({
 
       {enabled && w > 0 && (
         <div
-          className={`flex w-full max-w-full shrink-0 flex-wrap items-center justify-center gap-1 px-1 text-xs text-stone-500 ${
+          className={
             overlayControls
-              ? "pointer-events-auto absolute inset-x-1 bottom-1 z-20 gap-0.5 rounded-lg border border-stone-200/60 bg-white/90 px-1 py-0.5 backdrop-blur-sm"
+              ? "pointer-events-auto absolute bottom-1.5 left-1/2 z-20 -translate-x-1/2"
               : fillContainer
-                ? "py-1"
-                : ""
-          }`}
+                ? "flex shrink-0 justify-center py-3"
+                : "flex w-full max-w-full shrink-0 flex-wrap items-center justify-center gap-1 px-1 py-1 text-xs text-stone-500"
+          }
+          data-preserve-selection
         >
+          <div
+            className={`inline-flex items-center gap-1 text-stone-500 ${
+              overlayControls
+                ? "gap-0.5 rounded-lg border border-white/45 bg-white/50 px-1 py-0.5 shadow-sm backdrop-blur-[2px]"
+                : fillContainer
+                  ? "rounded-lg border border-stone-200/70 bg-white/95 px-1.5 py-0.5"
+                  : ""
+            }`}
+          >
           <button
             type="button"
             onClick={zoomOut}
             disabled={zoom <= MIN_ZOOM}
             className={`flex items-center justify-center rounded-md bg-white text-sm ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
-              overlayControls ? "h-7 w-7" : "min-h-11 min-w-11 text-base"
+              overlayControls ? "h-7 w-7" : fillContainer ? "h-9 w-9" : "min-h-11 min-w-11 text-base"
             }`}
             aria-label="缩小"
           >
             −
           </button>
           <span
-            className={`text-center font-mono ${overlayControls ? "min-w-[2rem] text-[10px]" : "min-w-[3rem] text-sm"}`}
+            className={`text-center font-mono text-sm ${
+              overlayControls ? "min-w-[2rem]" : "min-w-[2.75rem]"
+            }`}
           >
             {Math.round(zoom * 100)}%
           </span>
@@ -911,7 +925,7 @@ export function PhotoCanvasPicker({
             onClick={zoomIn}
             disabled={zoom >= MAX_ZOOM}
             className={`flex items-center justify-center rounded-md bg-white text-sm ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
-              overlayControls ? "h-7 w-7" : "min-h-11 min-w-11 text-base"
+              overlayControls ? "h-7 w-7" : fillContainer ? "h-9 w-9" : "min-h-11 min-w-11 text-base"
             }`}
             aria-label="放大"
           >
@@ -921,13 +935,18 @@ export function PhotoCanvasPicker({
             type="button"
             onClick={resetZoom}
             disabled={zoom === 1 && pan.x === 0 && pan.y === 0}
-            className={`rounded-md bg-white ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
-              overlayControls ? "h-7 px-1.5 text-[10px]" : "min-h-11 px-3 py-2"
+            className={`rounded-md bg-white text-sm ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
+              overlayControls
+                ? "h-7 px-1.5"
+                : fillContainer
+                  ? "h-9 px-2.5"
+                  : "min-h-11 px-3 py-2"
             }`}
           >
             重置
           </button>
-          {!overlayControls && (
+          </div>
+          {!overlayControls && !fillContainer && (
             <span className="w-full text-center text-stone-400 sm:w-auto">
               {coarsePointer
                 ? "双指缩放 · 准心=取色点 · 松手确认"

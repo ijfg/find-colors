@@ -171,12 +171,57 @@ function pickRepresentativePixel(
 export interface ExtractColorOptions {
   /** 为 true 时在显著色候选中加入随机权重，同一照片可得到不同目标色 */
   random?: boolean;
+  /** 「再玩一次」时排除与这些颜色过于接近的候选 */
+  excludeColors?: string[];
 }
 
 function getHueFamily(r: number, g: number, b: number): string {
-  const { h, s } = rgbToHsl(r, g, b);
-  if (s < 0.10) return "neutral";
+  const { h, s, l } = rgbToHsl(r, g, b);
+  if (s < 0.10) {
+    if (l < 0.28) return "neutral-dark";
+    if (l < 0.58) return "neutral-mid";
+    return "neutral-light";
+  }
   return String(Math.floor(h / 30) % 12);
+}
+
+function isTooSimilarToExcluded(
+  color: RGB,
+  excludeColors: string[],
+  minDist: number,
+): boolean {
+  if (excludeColors.length === 0) return false;
+  const family = getHueFamily(color.r, color.g, color.b);
+  const lum = luminance(color);
+
+  return excludeColors.some((hex) => {
+    const ex = hexToRgb(hex);
+    if (colorDistance(color, ex) < minDist) return true;
+
+    const exFamily = getHueFamily(ex.r, ex.g, ex.b);
+    const lumDiff = Math.abs(lum - luminance(ex));
+
+    if (family === exFamily) {
+      if (family.startsWith("neutral-") && lumDiff < 42) return true;
+      if (
+        !family.startsWith("neutral-") &&
+        lumDiff < 38 &&
+        hueAngularDistance(color, ex) < 28
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+}
+
+function shuffleInPlace<T>(items: T[]): T[] {
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return items;
 }
 
 function hueAngularDistance(a: RGB, b: RGB): number {
@@ -247,15 +292,8 @@ function buildHueFamilyPools(
       candidates.push(items[0].p);
     }
 
-    const meanFreq =
-      items.reduce((sum, { p }) => {
-        const key = getBinKey(p.r, p.g, p.b);
-        return sum + (bins.get(key)?.count ?? 0) / total;
-      }, 0) / items.length;
-
-    // 压低主色系的权重，让冷门色系更容易被「再玩一次」抽到
-    const rarityBoost = 1 / Math.sqrt(meanFreq + 0.008);
-    const weight = rarityBoost * (0.55 + Math.random() * 0.9);
+    // 随机模式：各色系接近均等机会，避免总抽到主色
+    const weight = 0.85 + Math.random() * 0.3;
 
     pools.push({ family, candidates, weight });
   }
@@ -269,72 +307,86 @@ function extractRandomSalientColors(
   bins: Map<string, ColorBin>,
   total: number,
   mean: RGB,
+  excludeColors: string[] = [],
 ): PixelSample[] {
   const familyPools = buildHueFamilyPools(pixels, bins, total, mean);
   if (familyPools.length === 0) {
     return Array.from({ length: count }, () => ({ ...mean, x: 0.5, y: 0.5 }));
   }
 
+  const excludeDist = count <= 1 ? 9000 : count <= 4 ? 4800 : 2400;
+  const minHueSep = count <= 1 ? 0 : count <= 4 ? 55 : 40;
+  const minRgbSep = count <= 1 ? 0 : count <= 4 ? 1800 : 1200;
+
+  function candidateOk(color: PixelSample): boolean {
+    if (isTooSimilarToExcluded(color, excludeColors, excludeDist)) return false;
+    if (
+      minRgbSep > 0 &&
+      !selected.every((s) => colorDistance(s, color) >= minRgbSep)
+    ) {
+      return false;
+    }
+    if (
+      minHueSep > 0 &&
+      !selected.every((s) => hueAngularDistance(s, color) >= minHueSep)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   const selected: PixelSample[] = [];
-  const usedFamilies = new Set<string>();
-  const minHueSep = count <= 1 ? 0 : count <= 4 ? 50 : 35;
-  const minRgbSep = count <= 1 ? 0 : count <= 4 ? 1200 : 900;
 
-  function pickFromPool(pool: HueFamilyPool): PixelSample | null {
-    const topN = Math.min(5, pool.candidates.length);
-    const shuffled = pool.candidates.slice(0, topN).sort(() => Math.random() - 0.5);
-    for (const candidate of shuffled) {
-      const rgbOk = selected.every(
-        (s) => colorDistance(s, candidate) >= minRgbSep,
-      );
-      const hueOk =
-        minHueSep === 0 ||
-        selected.every(
-          (s) => hueAngularDistance(s, candidate) >= minHueSep,
-        );
-      if (rgbOk && hueOk) return candidate;
-    }
-    return shuffled[0] ?? null;
+  const excludedFamilies = new Set(
+    excludeColors.map((hex) => {
+      const rgb = hexToRgb(hex);
+      return getHueFamily(rgb.r, rgb.g, rgb.b);
+    }),
+  );
+
+  const diversePools =
+    count <= 4 && excludedFamilies.size > 0
+      ? shuffleInPlace([
+          ...familyPools.filter((p) => !excludedFamilies.has(p.family)),
+          ...familyPools.filter((p) => excludedFamilies.has(p.family)),
+        ])
+      : shuffleInPlace([...familyPools]);
+
+  function pickRandomCandidate(pool: HueFamilyPool): PixelSample | null {
+    const eligible = shuffleInPlace([...pool.candidates]).filter(candidateOk);
+    return eligible[0] ?? null;
   }
 
-  function pickWeightedPool(
-    pools: HueFamilyPool[],
-    excludeUsed: boolean,
-  ): HueFamilyPool {
-    const available = excludeUsed
-      ? pools.filter((pool) => !usedFamilies.has(pool.family))
-      : pools;
-    const choices = available.length > 0 ? available : pools;
-    const totalWeight = choices.reduce((sum, pool) => sum + pool.weight, 0);
-    let roll = Math.random() * totalWeight;
-    for (const pool of choices) {
-      roll -= pool.weight;
-      if (roll <= 0) return pool;
-    }
-    return choices[choices.length - 1];
-  }
+  const shuffledPools = diversePools;
 
-  while (selected.length < count) {
-    const preferNewFamily =
-      usedFamilies.size < familyPools.length &&
-      selected.length < Math.min(count, familyPools.length);
-
-    const pool = pickWeightedPool(familyPools, preferNewFamily);
-    const color = pickFromPool(pool);
-    if (!color) break;
-
-    selected.push({ ...color });
-    usedFamilies.add(pool.family);
+  for (const pool of shuffledPools) {
+    if (selected.length >= count) break;
+    const color = pickRandomCandidate(pool);
+    if (color) selected.push({ ...color });
   }
 
   if (selected.length < count) {
-    const flat = familyPools
-      .flatMap((pool) => pool.candidates)
-      .sort(() => Math.random() - 0.5);
+    const flat = shuffleInPlace(
+      familyPools.flatMap((pool) => pool.candidates),
+    );
     for (const candidate of flat) {
       if (selected.length >= count) break;
-      if (selected.every((s) => colorDistance(s, candidate) >= 500)) {
-        selected.push({ ...candidate });
+      if (candidateOk(candidate)) selected.push({ ...candidate });
+    }
+  }
+
+  if (selected.length < count) {
+    const relaxedDist = Math.max(1200, excludeDist * 0.45);
+    for (const pool of shuffleInPlace([...familyPools])) {
+      if (selected.length >= count) break;
+      for (const candidate of shuffleInPlace([...pool.candidates])) {
+        if (selected.length >= count) break;
+        if (isTooSimilarToExcluded(candidate, excludeColors, relaxedDist)) {
+          continue;
+        }
+        if (selected.every((s) => colorDistance(s, candidate) >= 900)) {
+          selected.push({ ...candidate });
+        }
       }
     }
   }
@@ -381,7 +433,14 @@ function extractSalientColors(
   const binList = [...bins.values()].sort((a, b) => b.count - a.count);
 
   if (random) {
-    return extractRandomSalientColors(pixels, count, bins, total, mean);
+    return extractRandomSalientColors(
+      pixels,
+      count,
+      bins,
+      total,
+      mean,
+      options?.excludeColors ?? [],
+    );
   }
 
   const dominantAvgs = binList

@@ -152,3 +152,8 @@ export function deleteRecord(id: string): GameRecord[] {
 export function clearRecords(): void {
   localStorage.removeItem(KEY);
 }
+
+export function getRecordsStorageInfo(): { bytes: number; count: number } {
+  const raw = localStorage.getItem(KEY) ?? "";
+  return { bytes: raw.length, count: loadRecords().length };
+}

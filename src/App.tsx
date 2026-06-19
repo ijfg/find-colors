@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useMobileImmersive } from "./hooks/useMedia";
 import type { Difficulty } from "./types";
 import { ColorGuessingGame } from "./components/ColorGuessingGame";
 import { HomeView } from "./components/HomeView";
@@ -48,8 +47,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [records, setRecords] = useState(() => loadRecords());
-  const mobileImmersive = useMobileImmersive();
-  const immersiveGame = view === "game" && seed !== null && mobileImmersive;
+  const immersiveGame = view === "game" && seed !== null;
 
   useEffect(() => {
     if (!seed) return;
@@ -135,7 +133,7 @@ export default function App() {
       const { colors, positions } = await extractColorsFromImage(
         seed.photoDataUrl,
         seed.difficulty,
-        { random: true },
+        { random: true, excludeColors: seed.targetColors },
       );
       setGameState(undefined);
       setSeed({
@@ -177,7 +175,11 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div
+      className={`flex flex-col ${
+        view === "game" && seed ? "h-dvh overflow-hidden" : "min-h-dvh"
+      }`}
+    >
       {!immersiveGame && (
       <header
         className={
@@ -218,8 +220,10 @@ export default function App() {
             ? "p-0"
             : view === "home"
               ? "flex w-full flex-1 flex-col px-5 sm:px-6"
-              : "px-3 py-4 sm:px-6 sm:py-6"
-        } ${view === "game" ? "max-w-6xl" : view === "home" ? "max-w-5xl" : "max-w-5xl"}`}
+                : view === "game"
+                ? "flex min-h-0 flex-1 w-full flex-col overflow-hidden p-0"
+                : "w-full px-3 py-4 sm:px-6 sm:py-6"
+        } ${view === "game" ? "max-w-none" : view === "home" ? "max-w-5xl" : "max-w-5xl"}`}
       >
         {view === "home" && (
           <HomeView

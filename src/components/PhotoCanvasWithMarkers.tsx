@@ -183,7 +183,6 @@ interface MarkerPairProps {
   dim: boolean;
   hitRadius: number;
   hitLineWidth: number;
-  onHover: (index: number | null) => void;
   onTap: (index: number) => void;
 }
 
@@ -202,7 +201,6 @@ function MarkerPair({
   dim,
   hitRadius,
   hitLineWidth,
-  onHover,
   onTap,
 }: MarkerPairProps) {
   const tx = targetPos.x * w;
@@ -216,8 +214,6 @@ function MarkerPair({
   return (
     <g
       opacity={dim ? 0.14 : 1}
-      onMouseEnter={() => onHover(index)}
-      onMouseLeave={() => onHover(null)}
       onPointerUp={(e) => {
         e.stopPropagation();
         onTap(index);
@@ -365,9 +361,11 @@ export function PhotoCanvasWithMarkers({
     const ro = new ResizeObserver(update);
     ro.observe(el);
     window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
     };
   }, [maxHeightLimit]);
 
@@ -476,11 +474,11 @@ export function PhotoCanvasWithMarkers({
 
   const comparisonPanel = activeIndex !== null && (
     <div
-      className={`flex items-start justify-center rounded-xl bg-white/95 shadow-lg ring-1 ring-stone-200 backdrop-blur-sm ${
+      className={`relative flex items-start justify-center rounded-xl bg-white/95 shadow-lg ring-1 ring-stone-200 backdrop-blur-sm pointer-events-auto ${
         compact
-          ? "relative max-w-[min(100%,18.5rem)] flex-row flex-nowrap gap-2 px-2.5 py-2 pr-8"
-          : "flex-wrap gap-3 px-3 py-2.5"
-      } pointer-events-auto`}
+          ? "max-w-[min(100%,20rem)] flex-row flex-nowrap gap-2 px-3 py-2"
+          : "flex-row flex-nowrap gap-3 px-3 py-2.5"
+      }`}
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
@@ -489,7 +487,7 @@ export function PhotoCanvasWithMarkers({
         </span>
         <canvas
           ref={targetCropRef}
-          className="rounded-lg ring-2 ring-inset ring-stone-800"
+          className="rounded-md ring-1 ring-inset ring-stone-300"
           style={{
             width: compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY,
             height: compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY,
@@ -505,7 +503,7 @@ export function PhotoCanvasWithMarkers({
         </span>
         <canvas
           ref={guessCropRef}
-          className="rounded-lg ring-2 ring-dashed ring-inset ring-amber-500"
+          className="rounded-md ring-1 ring-inset ring-amber-400/80"
           style={{
             width: compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY,
             height: compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY,
@@ -515,16 +513,18 @@ export function PhotoCanvasWithMarkers({
           {userColors[activeIndex]}
         </span>
       </div>
-      {compact && (
-        <button
-          type="button"
-          onClick={() => setActiveIndex(null)}
-          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-stone-100 text-sm text-stone-500 ring-1 ring-stone-200"
-          aria-label="关闭对比"
-        >
-          ×
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => setActiveIndex(null)}
+        className={`absolute flex items-center justify-center rounded-full bg-stone-800 text-white shadow ring-2 ring-white ${
+          compact
+            ? "-right-1.5 -top-1.5 h-6 w-6 text-xs"
+            : "-right-2 -top-2 h-7 w-7 text-sm"
+        }`}
+        aria-label="关闭对比"
+      >
+        ×
+      </button>
     </div>
   );
 
@@ -542,6 +542,7 @@ export function PhotoCanvasWithMarkers({
       >
         <div
           className={`relative ${fillContainer ? "max-h-full max-w-full" : "inline-block"}`}
+          data-preserve-selection
         >
           <canvas
             ref={canvasRef}
@@ -578,39 +579,18 @@ export function PhotoCanvasWithMarkers({
                   dim={activeIndex !== null && activeIndex !== i}
                   hitRadius={hitRadius}
                   hitLineWidth={hitLineWidth}
-                  onHover={setActiveIndex}
                   onTap={handleTapMarker}
                 />
               ))}
             </svg>
           )}
-          {compact && comparisonPanel && (
+          {comparisonPanel && (
             <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center p-2">
               {comparisonPanel}
             </div>
           )}
         </div>
       </div>
-
-      {!compact && comparisonPanel}
-
-      {!compact && (
-        <div className="flex flex-col items-center gap-1 text-center text-xs text-stone-500">
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-full border-2 border-white bg-stone-400 ring-1 ring-stone-300" />
-              实线环 = 目标色
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-full border-2 border-dashed border-white bg-stone-300 ring-1 ring-stone-300" />
-              虚线环 = 你的颜色
-            </span>
-          </div>
-          <p className="text-stone-400">
-            点击标记查看局部截图 · 桌面端可悬停
-          </p>
-        </div>
-      )}
     </div>
   );
 }

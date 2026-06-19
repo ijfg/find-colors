@@ -2,7 +2,7 @@ interface ColorGridProps {
   colors: string[];
   dim?: 1 | 2 | 3 | 4;
   size?: "sm" | "md" | "lg";
-  variant?: "grid" | "toolbar" | "sidebar";
+  variant?: "grid" | "toolbar" | "sidebar" | "flank";
   className?: string;
   selectedIndex?: number | null;
   onSelectCell?: (index: number) => void;
@@ -23,6 +23,63 @@ const colsRowsClass: Record<number, string> = {
   3: "grid-cols-3 grid-rows-3",
   4: "grid-cols-4 grid-rows-4",
 };
+
+const flankCellSize: Record<number, string> = {
+  1: "6rem",
+  2: "5rem",
+  3: "4rem",
+  4: "2.75rem",
+};
+
+function renderGridCells(
+  total: number,
+  colors: string[],
+  allowEmpty: boolean,
+  selectedIndex: number | null | undefined,
+  onSelectCell: ((index: number) => void) | undefined,
+  ringColor: string,
+  cellClassName: string,
+  emptyClassName: string,
+) {
+  return Array.from({ length: total }, (_, i) => {
+    const color = colors[i] ?? "";
+    const isEmpty = allowEmpty && !color;
+    const isSelected = selectedIndex === i;
+    const interactive = !!onSelectCell;
+
+    return (
+      <button
+        key={i}
+        type="button"
+        role="option"
+        aria-selected={isSelected}
+        aria-label={isEmpty ? `空格 ${i + 1}` : `颜色 ${i + 1} ${color}`}
+        title={isEmpty ? "等待填色" : color}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelectCell?.(i);
+        }}
+        disabled={!interactive}
+        className={`
+          ${cellClassName}
+          ${interactive ? "cursor-pointer" : "cursor-default"}
+          ${
+            interactive && !isSelected
+              ? "hover:ring-2 hover:ring-stone-300"
+              : ""
+          }
+          ${isSelected ? `ring-2 ring-inset ${ringColor}` : "ring-1 ring-inset ring-stone-200"}
+          ${isEmpty ? emptyClassName : ""}
+        `}
+        style={isEmpty ? undefined : { backgroundColor: color }}
+      >
+        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.65)]">
+          {i + 1}
+        </span>
+      </button>
+    );
+  });
+}
 
 export function ColorGrid({
   colors,
@@ -54,6 +111,7 @@ export function ColorGrid({
         className={`flex min-h-0 w-full flex-col items-stretch gap-1.5 ${className}`}
         role="listbox"
         aria-label={label ?? "色彩宫格"}
+        data-preserve-selection
       >
         {label && (
           <span className="shrink-0 text-center text-[10px] font-semibold uppercase leading-tight tracking-wide text-stone-500">
@@ -104,12 +162,50 @@ export function ColorGrid({
     );
   }
 
+  if (variant === "flank") {
+    const cellSize = flankCellSize[dim] ?? "2rem";
+
+    return (
+      <div
+        className={`flex flex-col items-center gap-2 ${className}`}
+        role="listbox"
+        aria-label={label ?? "色彩宫格"}
+        data-preserve-selection
+      >
+        {label && (
+          <p className="text-xs font-medium uppercase tracking-wider text-stone-500">
+            {label}
+          </p>
+        )}
+        <div
+          className={`grid gap-1 ${colsRowsClass[dim]}`}
+          style={{
+            gridTemplateColumns: `repeat(${dim}, ${cellSize})`,
+            gridTemplateRows: `repeat(${dim}, ${cellSize})`,
+          }}
+        >
+          {renderGridCells(
+            total,
+            colors,
+            allowEmpty,
+            selectedIndex,
+            onSelectCell,
+            ringColor,
+            "relative rounded-sm transition-all",
+            "border border-dashed border-stone-300 bg-stone-50",
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (variant === "toolbar") {
     return (
       <div
         className={`flex w-full items-center gap-2 ${className}`}
         role="listbox"
         aria-label={label ?? "色彩宫格"}
+        data-preserve-selection
       >
         {label && (
           <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-stone-500">
@@ -161,7 +257,10 @@ export function ColorGrid({
   }
 
   return (
-    <div className={`flex flex-col items-center gap-2 ${className}`}>
+    <div
+      className={`flex flex-col items-center gap-2 ${className}`}
+      data-preserve-selection
+    >
       {label && (
         <p className="text-xs font-medium uppercase tracking-wider text-stone-500">
           {label}

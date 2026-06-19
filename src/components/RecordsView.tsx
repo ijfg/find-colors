@@ -24,10 +24,6 @@ function dimFromDifficulty(d: Difficulty): 1 | 2 | 3 | 4 {
   return 4;
 }
 
-function gridSizeForDifficulty(d: Difficulty): "sm" | "md" {
-  return d === 1 || d === 4 ? "sm" : "md";
-}
-
 function scoreTone(score: number): string {
   if (score >= 90) return "text-emerald-600";
   if (score >= 75) return "text-teal-600";
@@ -97,11 +93,10 @@ export function RecordsView({
           还没有记录，玩一局并提交后会自动保存
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className="mx-auto max-w-2xl space-y-3">
           {sorted.map((rec) => {
             const expanded = expandedId === rec.id;
             const dim = dimFromDifficulty(rec.difficulty);
-            const gridSize = gridSizeForDifficulty(rec.difficulty);
 
             return (
               <div
@@ -164,40 +159,42 @@ export function RecordsView({
                 </div>
 
                 {expanded && (
-                  <div className="border-t border-stone-100 p-4 space-y-4">
-                    <PhotoCanvasWithMarkers
-                      photoDataUrl={rec.thumbnailDataUrl}
-                      targetColors={rec.targetColors}
-                      userColors={rec.userColors}
-                      targetPositions={rec.targetPositions}
-                      userPositions={rec.userPositions}
-                    />
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-center sm:gap-8">
-                      <ColorGrid
-                        colors={rec.targetColors}
-                        dim={dim}
-                        size={gridSize}
-                        label="目标色"
+                  <div className="border-t border-stone-100 p-4">
+                    <div className="space-y-4">
+                      <PhotoCanvasWithMarkers
+                        photoDataUrl={rec.thumbnailDataUrl}
+                        targetColors={rec.targetColors}
+                        userColors={rec.userColors}
+                        targetPositions={rec.targetPositions}
+                        userPositions={rec.userPositions}
                       />
-                      <ColorGrid
-                        colors={rec.userColors}
-                        dim={dim}
-                        size={gridSize}
-                        label="你的色"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {rec.perCellScores.map((score, i) => (
-                        <div
-                          key={i}
-                          className="rounded-lg bg-stone-50 p-2 text-center text-xs ring-1 ring-stone-200"
-                        >
-                          <span className="text-stone-400">第 {i + 1} 格</span>
-                          <span className="ml-2 font-mono font-medium text-stone-700">
-                            {score}
-                          </span>
-                        </div>
-                      ))}
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-center sm:gap-8">
+                        <ColorGrid
+                          colors={rec.targetColors}
+                          dim={dim}
+                          size="md"
+                          label="目标色"
+                        />
+                        <ColorGrid
+                          colors={rec.userColors}
+                          dim={dim}
+                          size="md"
+                          label="你的色"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {rec.perCellScores.map((score, i) => (
+                          <div
+                            key={i}
+                            className="rounded-lg bg-stone-50 p-2 text-center text-xs ring-1 ring-stone-200"
+                          >
+                            <span className="text-stone-400">第 {i + 1} 格</span>
+                            <span className="ml-2 font-mono font-medium text-stone-700">
+                              {score}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}

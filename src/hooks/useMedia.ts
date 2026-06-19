@@ -25,10 +25,27 @@ export function useCompactWidth(): boolean {
   return useMediaQuery("(max-width: 639px)");
 }
 
-/** Phone touch layout in portrait or landscape (not tablet/desktop). */
+/** Phone / tablet touch layout; desktop mouse uses a separate layout. */
 export function useMobileImmersive(): boolean {
-  const coarse = useCoarsePointer();
-  const narrowWidth = useMediaQuery("(max-width: 639px)");
+  const coarse = useMediaQuery("(pointer: coarse)");
+  const touchPrimary = useMediaQuery("(hover: none)");
+  const phoneNarrow = useMediaQuery("(max-width: 639px)");
+  const touchViewport = useMediaQuery("(max-width: 1366px)");
   const shortHeight = useMediaQuery("(max-height: 520px)");
-  return coarse && (narrowWidth || shortHeight);
+
+  const touchLike = coarse || touchPrimary;
+  if (!touchLike) return false;
+  return phoneNarrow || shortHeight || touchViewport;
+}
+
+/** Side-by-side photo layout for phone / tablet landscape. */
+export function useMobileLandscapeLayout(): boolean {
+  const landscape = useMediaQuery("(orientation: landscape)");
+  const phoneLandscape = useMediaQuery("(max-height: 520px)");
+  const tabletLandscape = useMediaQuery(
+    "(min-width: 640px) and (max-width: 1366px)",
+  );
+
+  if (!landscape) return false;
+  return phoneLandscape || tabletLandscape;
 }
