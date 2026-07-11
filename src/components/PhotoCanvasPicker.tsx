@@ -46,7 +46,6 @@ const MAX_VIEWPORT_HEIGHT_RATIO = 0.72;
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
 const ZOOM_STEP = 0.25;
-const TAP_MOVE_THRESHOLD = 8;
 const PAN_START_THRESHOLD = 4;
 const LOUPE_GAP = 14;
 const HEX_AVOID_FINGER = 64;
@@ -262,8 +261,8 @@ export function PhotoCanvasPicker({
   const [hover, setHover] = useState<HoverState | null>(null);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [panning, setPanning] = useState(false);
   const viewRef = useRef({ zoom: 1, pan: { x: 0, y: 0 } });
-
   viewRef.current = { zoom, pan };
 
   useEffect(() => {
@@ -536,8 +535,8 @@ export function PhotoCanvasPicker({
       pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
-      startPanX: pan.x,
-      startPanY: pan.y,
+      startPanX: viewRef.current.pan.x,
+      startPanY: viewRef.current.pan.y,
       moved: false,
     };
     updateHoverAt(e.clientX, e.clientY);
@@ -557,6 +556,7 @@ export function PhotoCanvasPicker({
       e.preventDefault();
       pinchEndingRef.current = true;
       setHover(null);
+      setPanning(false);
 
       const dist = pinchDistance();
       const midCss = pinchMidpointCss();
@@ -581,15 +581,53 @@ export function PhotoCanvasPicker({
     if (drag && drag.pointerId === e.pointerId) {
       const dx = e.clientX - drag.startX;
       const dy = e.clientY - drag.startY;
+      const { zoom: z } = viewRef.current;
+      const { w: vw, h: vh } = displaySize;
+
+      if (z > 1) {
+        // Zoomed: drag pans the photo; loupe only for taps.
+        if (
+          !drag.moved &&
+          (Math.abs(dx) > PAN_START_THRESHOLD ||
+            Math.abs(dy) > PAN_START_THRESHOLD)
+        ) {
+          drag.moved = true;
+          setPanning(true);
+          setHover(null);
+        }
+        if (drag.moved) {
+          e.preventDefault();
+          setPan(
+            clampPan(
+              z,
+              {
+                x: drag.startPanX + dx,
+                y: drag.startPanY + dy,
+              },
+              vw,
+              vh,
+            ),
+          );
+          return;
+        }
+        updateHoverAt(e.clientX, e.clientY);
+        return;
+      }
+
+      // zoom === 1: loupe scrub; pick on release
       if (
         !drag.moved &&
-        (Math.abs(dx) > PAN_START_THRESHOLD || Math.abs(dy) > PAN_START_THRESHOLD)
+        (Math.abs(dx) > PAN_START_THRESHOLD ||
+          Math.abs(dy) > PAN_START_THRESHOLD)
       ) {
         drag.moved = true;
       }
+      updateHoverAt(e.clientX, e.clientY, coarsePointer);
+      return;
     }
 
-    if (pointersRef.current.size <= 1) {
+    // Desktop hover without button down
+    if (pointersRef.current.size === 0) {
       updateHoverAt(e.clientX, e.clientY);
     }
   }
@@ -614,16 +652,20 @@ export function PhotoCanvasPicker({
     const drag = dragRef.current;
     if (drag?.pointerId === e.pointerId) {
       const moved = drag.moved;
+      const wasZoomed = viewRef.current.zoom > 1;
       dragRef.current = null;
+      setPanning(false);
 
-      if (
-        !wasPinchEnding &&
-        enabled &&
-        (moved ||
-          Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) <
-            TAP_MOVE_THRESHOLD)
-      ) {
-        pickFromClient(e.clientX, e.clientY);
+      if (!wasPinchEnding && enabled) {
+        if (wasZoomed) {
+          // Tap only — panning must not pick
+          if (!moved) {
+            pickFromClient(e.clientX, e.clientY);
+          }
+        } else {
+          // zoom === 1: pick at release (loupe scrub or tap)
+          pickFromClient(e.clientX, e.clientY);
+        }
       }
     }
 
@@ -631,6 +673,7 @@ export function PhotoCanvasPicker({
       pinchEndingRef.current = false;
       dragRef.current = null;
       pinchRef.current = null;
+      setPanning(false);
     }
 
     try {
@@ -645,6 +688,7 @@ export function PhotoCanvasPicker({
     pinchRef.current = null;
     dragRef.current = null;
     pinchEndingRef.current = false;
+    setPanning(false);
     setHover(null);
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
@@ -690,7 +734,13 @@ export function PhotoCanvasPicker({
     hexLabel = placeHexLabel(loupeX, loupeY, vpX, vpY, w, h);
   }
 
-  const cursorClass = !enabled ? "cursor-default" : "cursor-crosshair";
+  const cursorClass = !enabled
+    ? "cursor-default"
+    : zoom > 1
+      ? panning
+        ? "cursor-grabbing"
+        : "cursor-grab"
+      : "cursor-crosshair";
 
   return (
     <div
