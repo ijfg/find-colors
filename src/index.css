@@ -66,23 +66,5 @@ body {
 }
 
 .home-landing {
-  --home-header-offset: 3rem;
-  --home-upload-anchor: 32dvh;
-  --home-hero-row: max(
-    0px,
-    calc(var(--home-upload-anchor) - var(--home-header-offset))
-  );
-}
-
-@media (min-width: 640px) {
-  .home-landing {
-    --home-header-offset: 3.25rem;
-    --home-upload-anchor: 34dvh;
-  }
-}
-
-@media (min-width: 1024px) {
-  .home-landing {
-    --home-upload-anchor: 33dvh;
-  }
+  justify-content: center;
 }

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Difficulty, GameResult, Position } from "../types";
+import type { RoomPublicView } from "../lib/roomTypes";
 import { t, useLocale } from "../i18n";
 import { useMobileImmersive, useMobileLandscapeLayout } from "../hooks/useMedia";
 import { ColorGrid } from "./ColorGrid";
 import { PhotoCanvasPicker } from "./PhotoCanvasPicker";
 import { PhotoCanvasWithMarkers } from "./PhotoCanvasWithMarkers";
+import { RoomPlayerStatus } from "./RoomPlayerStatus";
 import { ScoreResult } from "./ScoreResult";
 import { computeResult } from "../utils/scoring";
 import { compressToThumbnail, createRecordId, saveRecord } from "../utils/storage";
@@ -21,6 +23,16 @@ interface ColorGuessingGameProps {
   onPlayAgain: () => void;
   playAgainBusy?: boolean;
   onSaved?: () => void;
+  mode?: "solo" | "room";
+  hideScoreUntilReveal?: boolean;
+  onRoomSubmit?: (payload: {
+    userColors: string[];
+    userPositions: Position[];
+    totalScore: number;
+    perCellScores: number[];
+  }) => Promise<void>;
+  onRoomProgress?: (filledCount: number) => void;
+  roomStatus?: RoomPublicView;
 }
 
 function emptyPalette(count: number): string[] {
@@ -47,7 +59,6 @@ function nextEmptyIndex(colors: string[], after: number): number | null {
 }
 
 const DESKTOP_ZOOM_BAR = 60;
-const DESKTOP_LEGEND_HEIGHT = 36;
 const MOBILE_SHELL = "fixed inset-0 z-40 overflow-hidden bg-[#f7f5f2]";
 const DESKTOP_SHELL =
   "fixed inset-0 z-40 flex flex-row overflow-hidden bg-[#f7f5f2]";
@@ -63,6 +74,11 @@ export function ColorGuessingGame({
   onPlayAgain,
   playAgainBusy = false,
   onSaved,
+  mode = "solo",
+  hideScoreUntilReveal = false,
+  onRoomSubmit,
+  onRoomProgress,
+  roomStatus,
 }: ColorGuessingGameProps) {
   useLocale();
   const count = difficulty;
@@ -98,6 +114,11 @@ export function ColorGuessingGame({
   const mobileLandscape = mobileImmersive && mobileLandscapeLayout;
   const desktopLayout = !mobileImmersive;
 
+  function renderRoomStatus(mode: "sidebar" | "overlay") {
+    if (!roomStatus || submitted) return null;
+    return <RoomPlayerStatus room={roomStatus} mode={mode} />;
+  }
+
   useEffect(() => {
     onGameStateChange?.({
       userColors,
@@ -113,6 +134,11 @@ export function ColorGuessingGame({
   const filledCount = userColors.filter((c) => c).length;
 
   useEffect(() => {
+    if (mode !== "room" || submitted || !onRoomProgress) return;
+    onRoomProgress(filledCount);
+  }, [mode, submitted, filledCount, onRoomProgress]);
+
+  useEffect(() => {
     if (!submitted) {
       setResultDetailIndex(null);
     }
@@ -124,11 +150,10 @@ export function ColorGuessingGame({
       if (!slot) return;
 
       if (desktopLayout) {
-        const top = slot.getBoundingClientRect().top;
-        const bottomChrome = submitted
-          ? DESKTOP_LEGEND_HEIGHT
-          : DESKTOP_ZOOM_BAR + 12;
-        const next = Math.floor(window.innerHeight - top - bottomChrome - 16);
+        const slot = photoSlotRef.current;
+        if (!slot) return;
+        const bottomChrome = DESKTOP_ZOOM_BAR + 12;
+        const next = Math.floor(slot.clientHeight - bottomChrome);
         setPhotoMaxHeight(Math.max(120, next));
         return;
       }
@@ -235,6 +260,7 @@ export function ColorGuessingGame({
         >
           {mobile || vertical ? t("game.clear") : t("game.clearLong")}
         </button>
+        {mode === "solo" && (
         <button
           type="button"
           onClick={onNewPhoto}
@@ -248,6 +274,7 @@ export function ColorGuessingGame({
         >
           {mobile || vertical ? t("game.newPhoto") : t("game.newPhotoLong")}
         </button>
+        )}
       </div>
     );
   }
@@ -308,6 +335,25 @@ export function ColorGuessingGame({
       targetPositions,
       userPositions,
     );
+
+    if (mode === "room" && onRoomSubmit) {
+      setSaving(true);
+      setSaveError(null);
+      try {
+        await onRoomSubmit({
+          userColors,
+          userPositions,
+          totalScore: gameResult.total,
+          perCellScores: gameResult.details.map((d) => d.score),
+        });
+      } catch {
+        setSaveError(t("game.saveErrorGeneric"));
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     setResult(gameResult);
     setSaving(true);
     setSaveError(null);
@@ -410,9 +456,10 @@ export function ColorGuessingGame({
             ref={photoSlotRef}
             className="relative min-h-0 flex-1 overflow-hidden"
           >
+            {renderRoomStatus("overlay")}
             {renderPhotoCanvas()}
           </div>
-          {submitted && result && (
+          {submitted && result && !hideScoreUntilReveal && (
             <div className="max-h-[42vh] shrink-0 overflow-y-auto overscroll-y-contain border-t border-stone-200/80 bg-white/95 p-2 touch-pan-y">
               {saveError && (
                 <p className="mb-2 rounded-lg bg-amber-50 px-2 py-1.5 text-center text-[10px] leading-snug text-amber-800 ring-1 ring-amber-200">
@@ -474,18 +521,18 @@ export function ColorGuessingGame({
         className={DESKTOP_SHELL}
         onPointerDownCapture={handleBackgroundPointerDown}
       >
-        <div
-          ref={photoSlotRef}
-          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-stone-900/5 pt-3"
-        >
-          <div className="relative min-h-0 flex-1 overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-stone-900/5 pt-3">
+          <div
+            ref={photoSlotRef}
+            className="relative min-h-0 flex-1 overflow-hidden"
+          >
             {renderPhotoCanvas()}
           </div>
           {renderDesktopMarkerLegend()}
         </div>
 
         <div className="flex w-[clamp(18rem,32vw,24rem)] shrink-0 flex-col border-l border-stone-200/50">
-          {submitted && result ? (
+          {submitted && result && !hideScoreUntilReveal ? (
             <div className="flex h-full min-h-0 w-full flex-col overflow-y-auto px-4 py-6">
               {saveError && (
                 <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs text-amber-800 ring-1 ring-amber-200">
@@ -528,6 +575,10 @@ export function ColorGuessingGame({
                 />
                 {renderPickingHint("text-center text-xs leading-snug text-stone-500")}
               </div>
+
+              {roomStatus && (
+                <div className="shrink-0 px-1">{renderRoomStatus("sidebar")}</div>
+              )}
 
               <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
                 {renderActionButtons(true, true)}
@@ -583,9 +634,13 @@ export function ColorGuessingGame({
             selectedTone="amber"
           />
 
+          {!submitted && roomStatus && (
+            <div className="shrink-0">{renderRoomStatus("sidebar")}</div>
+          )}
+
           {!submitted && renderActionButtons(true)}
 
-          {submitted && result && (
+          {submitted && result && !hideScoreUntilReveal && (
             <div className="max-h-[32vh] space-y-2 overflow-y-auto overscroll-y-contain p-1">
               {saveError && (
                 <p className="rounded-lg bg-amber-50 px-3 py-2 text-center text-xs text-amber-800 ring-1 ring-amber-200">

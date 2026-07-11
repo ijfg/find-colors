@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Difficulty, GameRecord } from "../types";
 import { t, useLocale } from "../i18n";
 import { ColorGrid } from "./ColorGrid";
+import { MiniPalette } from "./MiniPalette";
 import { PhotoCanvasWithMarkers } from "./PhotoCanvasWithMarkers";
 
 interface RecordsViewProps {
@@ -123,7 +124,7 @@ export function RecordsView({
                   <img
                     src={rec.thumbnailDataUrl}
                     alt=""
-                    className="h-16 w-24 shrink-0 rounded-lg object-cover ring-1 ring-stone-200"
+                    className="h-[4.5rem] w-[4.5rem] shrink-0 rounded-lg object-cover ring-1 ring-stone-200"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-2">
@@ -132,10 +133,27 @@ export function RecordsView({
                       >
                         {rec.totalScore}
                       </span>
-                      <span className="text-sm text-stone-400">/ 100</span>
+                      <span className="text-caption text-base">/ 100</span>
+                    </div>
+                    <MiniPalette
+                      colors={rec.userColors}
+                      size="xs"
+                      className="mt-1.5"
+                    />
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
                       <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500">
                         {difficultyLabel(rec.difficulty)}
                       </span>
+                      {rec.mode === "room" &&
+                        rec.roomRank != null &&
+                        rec.roomPlayerCount != null && (
+                          <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500">
+                            {t("records.roomRank", {
+                              rank: String(rec.roomRank),
+                              total: String(rec.roomPlayerCount),
+                            })}
+                          </span>
+                        )}
                     </div>
                     <p className="mt-1 text-xs text-stone-400">
                       {new Date(rec.createdAt).toLocaleString(dateLocale)}
@@ -162,20 +180,22 @@ export function RecordsView({
                 </div>
 
                 {expanded && (
-                  <div className="border-t border-stone-100 p-4">
-                    <div className="space-y-4">
+                  <div className="border-t border-stone-100 p-3">
+                    <div className="space-y-3">
                       <PhotoCanvasWithMarkers
                         photoDataUrl={rec.thumbnailDataUrl}
                         targetColors={rec.targetColors}
                         userColors={rec.userColors}
                         targetPositions={rec.targetPositions}
                         userPositions={rec.userPositions}
+                        compact
+                        maxHeightLimit={160}
                       />
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-center sm:gap-8">
+                      <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-6">
                         <ColorGrid
                           colors={rec.targetColors}
                           dim={dim}
-                          size="md"
+                          size="sm"
                           label={t(
                             rec.difficulty === 1
                               ? "records.targetColor"
@@ -185,7 +205,7 @@ export function RecordsView({
                         <ColorGrid
                           colors={rec.userColors}
                           dim={dim}
-                          size="md"
+                          size="sm"
                           label={t(
                             rec.difficulty === 1
                               ? "records.yourColor"
@@ -204,6 +224,7 @@ export function RecordsView({
                             </span>
                             <span className="ml-2 font-mono font-medium text-stone-700">
                               {score}
+                              <span className="font-normal text-stone-400">/100</span>
                             </span>
                           </div>
                         ))}

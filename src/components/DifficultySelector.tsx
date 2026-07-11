@@ -4,6 +4,7 @@ import { t, useLocale } from "../i18n";
 interface DifficultySelectorProps {
   value: Difficulty;
   onChange: (d: Difficulty) => void;
+  className?: string;
 }
 
 const OPTIONS: { d: Difficulty; key: string }[] = [
@@ -16,11 +17,12 @@ const OPTIONS: { d: Difficulty; key: string }[] = [
 export function DifficultySelector({
   value,
   onChange,
+  className = "",
 }: DifficultySelectorProps) {
   useLocale();
 
   return (
-    <div className="mt-5 sm:mt-6">
+    <div className={`mt-5 sm:mt-6 ${className}`}>
       <div
         className="grid grid-cols-4 gap-1.5 sm:gap-2"
         role="group"

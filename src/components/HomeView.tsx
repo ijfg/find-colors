@@ -1,40 +1,39 @@
-import type { Difficulty } from "../types";
 import { t, useLocale } from "../i18n";
-import { DifficultySelector } from "./DifficultySelector";
-import { PhotoUpload } from "./PhotoUpload";
 
 interface HomeViewProps {
-  difficulty: Difficulty;
-  onDifficultyChange: (d: Difficulty) => void;
-  onPhotoSelect: (file: File) => void;
-  loading?: boolean;
-  error?: string | null;
+  onSoloStart: () => void;
+  onRoomPlay: () => void;
 }
 
-export function HomeView({
-  difficulty,
-  onDifficultyChange,
-  onPhotoSelect,
-  loading,
-  error,
-}: HomeViewProps) {
+const homeBtn =
+  "inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[var(--color-border)] bg-white px-4 py-2.5 text-base font-medium transition-colors hover:bg-[var(--color-bg)]";
+
+export function HomeView({ onSoloStart, onRoomPlay }: HomeViewProps) {
   useLocale();
 
   return (
-    <section className="home-landing mx-auto grid w-full max-w-sm flex-1 grid-rows-[var(--home-hero-row)_auto_1fr] sm:max-w-md">
-      <div className="flex flex-col justify-end pb-6 text-center sm:pb-8">
+    <section className="home-landing mx-auto flex w-full max-w-sm flex-1 flex-col justify-center pb-[22vh] pt-[10vh] sm:max-w-md">
+      <div className="w-full text-center">
         <h2 className="text-title text-[1.75rem] sm:text-[2rem]">{t("appName")}</h2>
-        <DifficultySelector value={difficulty} onChange={onDifficultyChange} />
-      </div>
 
-      <PhotoUpload onSelect={onPhotoSelect} loading={loading} />
+        <div className="mt-8 space-y-2.5 sm:mt-10">
+          <button
+            type="button"
+            disabled
+            className={`${homeBtn} flex-col py-3 text-stone-400`}
+          >
+            {t("home.dailyChallenge")}
+            <span className="mt-0.5 text-xs font-normal">{t("home.comingSoon")}</span>
+          </button>
 
-      <div className="min-h-0">
-        {error && (
-          <p className="text-caption mt-4 text-center text-sm text-red-600/90">
-            {error}
-          </p>
-        )}
+          <button type="button" onClick={onSoloStart} className={`${homeBtn} text-stone-700`}>
+            {t("home.soloGame")}
+          </button>
+
+          <button type="button" onClick={onRoomPlay} className={`${homeBtn} text-stone-700`}>
+            {t("room.playWithFriends")}
+          </button>
+        </div>
       </div>
     </section>
   );

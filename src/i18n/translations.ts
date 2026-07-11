@@ -22,6 +22,21 @@ export const translations = {
       "zh-Hans": "无法重新生成目标色，请换一张试试。",
       "zh-Hant": "無法重新生成目標色，請換一張試試。",
     },
+    dailyChallenge: {
+      en: "Daily challenge",
+      "zh-Hans": "每日挑战",
+      "zh-Hant": "每日挑戰",
+    },
+    comingSoon: {
+      en: "Coming soon",
+      "zh-Hans": "即将推出",
+      "zh-Hant": "即將推出",
+    },
+    soloGame: {
+      en: "Solo game",
+      "zh-Hans": "单机游戏",
+      "zh-Hant": "單機遊戲",
+    },
   },
   difficulty: {
     one: { en: "1 color", "zh-Hans": "1 色", "zh-Hant": "1 色" },
@@ -169,6 +184,11 @@ export const translations = {
       "zh-Hans": "删除记录",
       "zh-Hant": "刪除記錄",
     },
+    roomRank: {
+      en: "#{rank}/{total}",
+      "zh-Hans": "第 {rank}/{total} 名",
+      "zh-Hant": "第 {rank}/{total} 名",
+    },
     targetColor: {
       en: "Target color",
       "zh-Hans": "目标色",
@@ -217,6 +237,194 @@ export const translations = {
       "zh-Hant": "色彩宮格",
     },
     difficulty: { en: "Difficulty", "zh-Hans": "难度", "zh-Hant": "難度" },
+  },
+  room: {
+    playWithFriends: {
+      en: "Play with friends",
+      "zh-Hans": "和朋友一起玩",
+      "zh-Hant": "和朋友一起玩",
+    },
+    orDivider: { en: "or", "zh-Hans": "或", "zh-Hant": "或" },
+    hubTitle: {
+      en: "Room game",
+      "zh-Hans": "房间游戏",
+      "zh-Hant": "房間遊戲",
+    },
+    createRoom: {
+      en: "Create room",
+      "zh-Hans": "创建房间",
+      "zh-Hant": "創建房間",
+    },
+    joinRoom: {
+      en: "Join room",
+      "zh-Hans": "加入房间",
+      "zh-Hant": "加入房間",
+    },
+    backHome: {
+      en: "Back to home",
+      "zh-Hans": "回到首页",
+      "zh-Hant": "回到首頁",
+    },
+    yourName: {
+      en: "Your name",
+      "zh-Hans": "你的昵称",
+      "zh-Hant": "你的暱稱",
+    },
+    roomCode: {
+      en: "Room code",
+      "zh-Hans": "房间码",
+      "zh-Hant": "房間碼",
+    },
+    deadlineMinutes: {
+      en: "Deadline (minutes)",
+      "zh-Hans": "截止时间（分钟）",
+      "zh-Hant": "截止時間（分鐘）",
+    },
+    creating: {
+      en: "Creating room…",
+      "zh-Hans": "创建中…",
+      "zh-Hant": "創建中…",
+    },
+    joining: { en: "Joining…", "zh-Hans": "加入中…", "zh-Hant": "加入中…" },
+    createFailed: {
+      en: "Couldn't create room. Try again.",
+      "zh-Hans": "无法创建房间，请重试。",
+      "zh-Hant": "無法創建房間，請重試。",
+    },
+    joinFailed: {
+      en: "Couldn't join room. Check the code and try again.",
+      "zh-Hans": "无法加入房间，请检查房间码。",
+      "zh-Hant": "無法加入房間，請檢查房間碼。",
+    },
+    lobbyTitle: {
+      en: "Room {code}",
+      "zh-Hans": "房间 {code}",
+      "zh-Hant": "房間 {code}",
+    },
+    hostLabel: { en: "Host", "zh-Hans": "房主", "zh-Hant": "房主" },
+    players: { en: "Players", "zh-Hans": "玩家", "zh-Hant": "玩家" },
+    submittedCount: {
+      en: "{submitted} / {total} submitted",
+      "zh-Hans": "已提交 {submitted} / {total} 人",
+      "zh-Hant": "已提交 {submitted} / {total} 人",
+    },
+    copyLink: {
+      en: "Copy link",
+      "zh-Hans": "复制链接",
+      "zh-Hant": "複製連結",
+    },
+    copied: { en: "Copied!", "zh-Hans": "已复制", "zh-Hant": "已複製" },
+    startGame: {
+      en: "Start guessing",
+      "zh-Hans": "开始猜色",
+      "zh-Hant": "開始猜色",
+    },
+    waitingTitle: {
+      en: "Submitted!",
+      "zh-Hans": "已提交！",
+      "zh-Hant": "已提交！",
+    },
+    waitingHint: {
+      en: "Scores stay hidden until everyone submits or the deadline passes.",
+      "zh-Hans": "全员提交或截止到期后才会揭晓分数。",
+      "zh-Hant": "全員提交或截止到期後才會揭曉分數。",
+    },
+    viewLeaderboard: {
+      en: "View results",
+      "zh-Hans": "查看结果",
+      "zh-Hant": "查看結果",
+    },
+    leaderboardTitle: {
+      en: "Results",
+      "zh-Hans": "成果发表",
+      "zh-Hant": "成果發表",
+    },
+    rankings: {
+      en: "Rankings",
+      "zh-Hans": "排名",
+      "zh-Hant": "排名",
+    },
+    you: {
+      en: "you",
+      "zh-Hans": "你",
+      "zh-Hant": "你",
+    },
+    dnf: { en: "No submit", "zh-Hans": "未提交", "zh-Hant": "未提交" },
+    revealAllSubmitted: {
+      en: "Everyone submitted",
+      "zh-Hans": "全员已提交",
+      "zh-Hant": "全員已提交",
+    },
+    revealDeadline: {
+      en: "Deadline reached",
+      "zh-Hans": "已到截止时间",
+      "zh-Hant": "已到截止時間",
+    },
+    leaveRoom: {
+      en: "Leave room",
+      "zh-Hans": "离开房间",
+      "zh-Hant": "離開房間",
+    },
+    roomClosed: {
+      en: "This room is closed.",
+      "zh-Hans": "房间已关闭。",
+      "zh-Hant": "房間已關閉。",
+    },
+    loadingRoom: {
+      en: "Loading room…",
+      "zh-Hans": "加载房间…",
+      "zh-Hant": "載入房間…",
+    },
+    playerStatusTitle: {
+      en: "Players",
+      "zh-Hans": "玩家状态",
+      "zh-Hant": "玩家狀態",
+    },
+    playerStatusShort: {
+      en: "Players",
+      "zh-Hans": "玩家",
+      "zh-Hant": "玩家",
+    },
+    closeStatus: {
+      en: "Hide player status",
+      "zh-Hans": "关闭玩家状态",
+      "zh-Hant": "關閉玩家狀態",
+    },
+    playerSubmitted: {
+      en: "{name} submitted",
+      "zh-Hans": "{name} 已提交",
+      "zh-Hant": "{name} 已提交",
+    },
+    playerNotStarted: {
+      en: "{name} hasn't started",
+      "zh-Hans": "{name} 还没开始",
+      "zh-Hant": "{name} 還沒開始",
+    },
+    playerFilling: {
+      en: "{name} is on color {n}",
+      "zh-Hans": "{name} 正在填第 {n} 个颜色",
+      "zh-Hant": "{name} 正在填第 {n} 個顏色",
+    },
+    playerReadySubmit: {
+      en: "{name} is ready to submit",
+      "zh-Hans": "{name} 填完了，准备提交",
+      "zh-Hant": "{name} 填完了，準備提交",
+    },
+    showAllPlayers: {
+      en: "Show everyone's picks on photo",
+      "zh-Hans": "在照片上显示所有人的取色点",
+      "zh-Hant": "在照片上顯示所有人的取色點",
+    },
+    cellCompareTitle: {
+      en: "Cell {n} — everyone's picks",
+      "zh-Hans": "第 {n} 格 · 所有人的取色",
+      "zh-Hant": "第 {n} 格 · 所有人的取色",
+    },
+    tapCellOnPhoto: {
+      en: "Tap a numbered circle on the photo to compare picks",
+      "zh-Hans": "点击照片上的号码，查看所有人这一格的取色对比",
+      "zh-Hant": "點擊照片上的號碼，查看所有人這一格的取色對比",
+    },
   },
 } as const;
 

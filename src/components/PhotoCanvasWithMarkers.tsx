@@ -19,6 +19,12 @@ interface PhotoCanvasWithMarkersProps {
   compact?: boolean;
   selectedIndex?: number | null;
   onSelectedIndexChange?: (index: number | null) => void;
+  ghostPlayers?: Array<{
+    playerId: string;
+    colorIndex: number;
+    userColors: string[];
+    userPositions: Position[];
+  }>;
 }
 
 const MAX_VIEWPORT_HEIGHT_RATIO = 0.72;
@@ -125,6 +131,8 @@ function samplePhotoLuminance(
 function readableText(hex: string): string {
   return contrastStroke(hex) === DARK_STROKE ? DARK_STROKE : LIGHT_STROKE;
 }
+
+import { getPlayerColor } from "../lib/playerColors";
 
 function drawCropCanvas(
   canvas: HTMLCanvasElement,
@@ -318,6 +326,7 @@ export function PhotoCanvasWithMarkers({
   compact = false,
   selectedIndex,
   onSelectedIndexChange,
+  ghostPlayers,
 }: PhotoCanvasWithMarkersProps) {
   useLocale();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -483,8 +492,8 @@ export function PhotoCanvasWithMarkers({
       }`}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
-        <span className="text-center text-[10px] font-medium uppercase tracking-wide text-stone-500">
+      <div className="flex w-[calc(50%-0.25rem)] min-w-0 shrink-0 flex-col items-center gap-1">
+        <span className="whitespace-nowrap text-center text-[10px] font-medium uppercase tracking-wide text-stone-500">
           {t("game.cellTarget", { n: activeIndex + 1 })}
         </span>
         <canvas
@@ -499,8 +508,8 @@ export function PhotoCanvasWithMarkers({
           {targetColors[activeIndex]}
         </span>
       </div>
-      <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
-        <span className="text-center text-[10px] font-medium uppercase tracking-wide text-stone-500">
+      <div className="flex w-[calc(50%-0.25rem)] min-w-0 shrink-0 flex-col items-center gap-1">
+        <span className="whitespace-nowrap text-center text-[10px] font-medium uppercase tracking-wide text-stone-500">
           {t("game.cellYours", { n: activeIndex + 1 })}
         </span>
         <canvas
@@ -584,6 +593,29 @@ export function PhotoCanvasWithMarkers({
                   onTap={handleTapMarker}
                 />
               ))}
+              {ghostPlayers?.map((ghost) =>
+                ghost.userColors.map((color, i) => {
+                  if (!color) return null;
+                  const pos = ghost.userPositions[i] ?? { x: 0.5, y: 0.5 };
+                  const ux = pos.x * w;
+                  const uy = pos.y * h;
+                      const accent = getPlayerColor(ghost.colorIndex);
+                  const dimGhost = activeIndex !== null && activeIndex !== i;
+                  return (
+                    <g key={`${ghost.playerId}-${i}`} opacity={dimGhost ? 0.35 : 0.85}>
+                      <circle
+                        cx={ux}
+                        cy={uy}
+                        r={7}
+                        fill={color}
+                        stroke={accent}
+                        strokeWidth={2}
+                        pointerEvents="none"
+                      />
+                    </g>
+                  );
+                }),
+              )}
             </svg>
           )}
           {comparisonPanel && (

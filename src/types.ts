@@ -31,4 +31,8 @@ export interface GameRecord {
   userPositions: Position[];
   totalScore: number;
   perCellScores: number[];
+  mode?: "solo" | "room";
+  roomCode?: string;
+  roomRank?: number;
+  roomPlayerCount?: number;
 }

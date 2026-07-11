@@ -3,8 +3,13 @@ import type { Difficulty } from "./types";
 import { t, useLocale } from "./i18n";
 import { ColorGuessingGame } from "./components/ColorGuessingGame";
 import { HomeView } from "./components/HomeView";
+import { SoloSetupView } from "./components/SoloSetupView";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { RecordsView } from "./components/RecordsView";
+import { RoomCreateView } from "./components/RoomCreateView";
+import { RoomFlow } from "./components/RoomFlow";
+import { RoomHubView } from "./components/RoomHubView";
+import { RoomJoinView } from "./components/RoomJoinView";
 import { extractColorsFromImage } from "./utils/colorExtract";
 import {
   clearSession,
@@ -16,32 +21,50 @@ import {
   type GameSeed,
   type PersistedGameState,
 } from "./utils/storage";
+import {
+  getPathname,
+  navigate,
+  parseRoute,
+  type AppRoute,
+} from "./lib/routing";
 
-type View = "home" | "game" | "records";
+type SoloView = "home" | "soloSetup" | "game" | "records";
 
-function readInitialAppState() {
+function readInitialSoloState() {
   const session = loadSession();
   if (!session) {
     return {
-      view: "home" as View,
+      view: "home" as SoloView,
       difficulty: 4 as Difficulty,
       seed: null as GameSeed | null,
       gameState: undefined as PersistedGameState | undefined,
     };
   }
-
   return {
-    view: session.view,
+    view: session.view as SoloView,
     difficulty: session.difficulty,
     seed: session.seed,
     gameState: session.gameState,
   };
 }
 
+function useAppRoute(): AppRoute {
+  const [path, setPath] = useState(getPathname);
+  useEffect(() => {
+    const onPop = () => setPath(getPathname());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  return parseRoute(path);
+}
+
 export default function App() {
   const locale = useLocale();
-  const initial = readInitialAppState();
-  const [view, setView] = useState<View>(initial.view);
+  const route = useAppRoute();
+  const initial = readInitialSoloState();
+  const [soloView, setSoloView] = useState<SoloView>(
+    route.kind === "home" ? initial.view : "home",
+  );
   const [difficulty, setDifficulty] = useState<Difficulty>(initial.difficulty);
   const [seed, setSeed] = useState<GameSeed | null>(initial.seed);
   const [gameState, setGameState] = useState<PersistedGameState | undefined>(
@@ -50,30 +73,45 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [records, setRecords] = useState(() => loadRecords());
-  const immersiveGame = view === "game" && seed !== null;
+  const [roomImmersive, setRoomImmersive] = useState(false);
+
+  const isSoloRoute = route.kind === "home";
+  const isRoomRoute =
+    route.kind === "roomHub" ||
+    route.kind === "roomCreate" ||
+    route.kind === "roomJoin" ||
+    route.kind === "room";
+  const immersiveGame = isSoloRoute && soloView === "game" && seed !== null;
+  const fullScreenMain = immersiveGame || roomImmersive;
+  const hideHeader =
+    immersiveGame || isRoomRoute || (isSoloRoute && soloView === "records");
+
+  const showRecordsButton =
+    isSoloRoute && soloView !== "records" && soloView !== "game";
+  const transparentHeader =
+    isSoloRoute && (soloView === "home" || soloView === "soloSetup");
 
   useEffect(() => {
     document.title = t("appName");
   }, [locale]);
 
   useEffect(() => {
-    if (!seed) return;
-
+    if (!isSoloRoute || !seed) return;
     void saveSession({
       version: 1,
-      view,
+      view: soloView === "records" ? "records" : "game",
       difficulty,
       seed,
       gameState,
     });
-  }, [seed, view, difficulty, gameState]);
+  }, [seed, soloView, difficulty, gameState, isSoloRoute]);
 
   useEffect(() => {
     const flushSession = () => {
-      if (!seed) return;
+      if (!isSoloRoute || !seed) return;
       void saveSession({
         version: 1,
-        view,
+        view: soloView === "records" ? "records" : "game",
         difficulty,
         seed,
         gameState,
@@ -93,7 +131,7 @@ export default function App() {
       const session = loadSession();
       if (!session) return;
       setSeed(session.seed);
-      setView(session.view);
+      setSoloView(session.view as SoloView);
       setDifficulty(session.difficulty);
       setGameState(session.gameState);
       setRecords(loadRecords());
@@ -105,7 +143,7 @@ export default function App() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("pageshow", onPageShow);
     };
-  }, [seed, view, difficulty, gameState]);
+  }, [seed, soloView, difficulty, gameState, isSoloRoute]);
 
   async function handlePhotoSelect(file: File) {
     setError(null);
@@ -124,7 +162,7 @@ export default function App() {
       };
       setGameState(undefined);
       setSeed(nextSeed);
-      setView("game");
+      setSoloView("game");
     } catch {
       setError(t("home.cantProcess"));
     } finally {
@@ -160,7 +198,8 @@ export default function App() {
     clearSession();
     setSeed(null);
     setGameState(undefined);
-    setView("home");
+    setSoloView("home");
+    navigate("/");
   }
 
   function handleSaved() {
@@ -169,7 +208,7 @@ export default function App() {
 
   function openRecords() {
     setRecords(loadRecords());
-    setView("records");
+    setSoloView("records");
   }
 
   function handleDeleteRecord(id: string) {
@@ -181,95 +220,144 @@ export default function App() {
     setRecords([]);
   }
 
+  function renderMain() {
+    if (route.kind === "roomHub") {
+      return <RoomHubView />;
+    }
+    if (route.kind === "roomCreate") {
+      return <RoomCreateView />;
+    }
+    if (route.kind === "roomJoin") {
+      return <RoomJoinView initialCode={route.code} />;
+    }
+    if (route.kind === "room") {
+      return (
+        <RoomFlow code={route.code} onImmersiveChange={setRoomImmersive} />
+      );
+    }
+
+    if (soloView === "home") {
+      return (
+        <HomeView
+          onSoloStart={() => {
+            setError(null);
+            setSoloView("soloSetup");
+          }}
+          onRoomPlay={() => navigate("/room")}
+        />
+      );
+    }
+
+    if (soloView === "soloSetup") {
+      return (
+        <SoloSetupView
+          difficulty={difficulty}
+          onDifficultyChange={setDifficulty}
+          onPhotoSelect={handlePhotoSelect}
+          onBack={() => {
+            setError(null);
+            setSoloView("home");
+          }}
+          loading={loading}
+          error={error}
+        />
+      );
+    }
+
+    if (soloView === "game" && seed) {
+      return (
+        <ColorGuessingGame
+          key={seed.id}
+          photoDataUrl={seed.photoDataUrl}
+          difficulty={seed.difficulty}
+          targetColors={seed.targetColors}
+          targetPositions={seed.targetPositions}
+          initialGameState={gameState}
+          onGameStateChange={setGameState}
+          onNewPhoto={handleNewPhoto}
+          onPlayAgain={handlePlayAgain}
+          playAgainBusy={loading}
+          onSaved={handleSaved}
+        />
+      );
+    }
+
+    if (soloView === "records") {
+      return (
+        <RecordsView
+          records={records}
+          onBack={() => setSoloView(seed ? "game" : "home")}
+          onDelete={handleDeleteRecord}
+          onClearAll={handleClearAllRecords}
+        />
+      );
+    }
+
+    return null;
+  }
+
   return (
     <div
       className={`flex flex-col ${
-        view === "game" && seed ? "h-dvh overflow-hidden" : "min-h-dvh"
+        fullScreenMain ? "h-dvh overflow-hidden" : "min-h-dvh"
       }`}
     >
-      {!immersiveGame && (
-      <header
-        className={
-          view === "home"
-            ? "bg-transparent"
-            : "border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 backdrop-blur-sm"
-        }
-      >
-        <div
-          className={`mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 ${
-            view === "game" ? "max-w-6xl" : "max-w-5xl"
-          }`}
+      {!hideHeader && (
+        <header
+          className={
+            transparentHeader
+              ? "bg-transparent"
+              : "border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 backdrop-blur-sm"
+          }
         >
-          {view !== "home" && (
-            <div className="min-w-0">
-              <h1 className="text-title text-lg sm:text-xl">{t("appName")}</h1>
-            </div>
-          )}
-          {view === "home" && <div className="flex-1" aria-hidden />}
-          <div className="flex shrink-0 items-center gap-2">
-            <LanguageSwitcher />
-            {view !== "records" && (
-              <button
-                type="button"
-                onClick={openRecords}
-                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
-              >
-                {t("records.title")}
-                {records.length > 0 && (
-                  <span className="tabular-nums">({records.length})</span>
-                )}
-              </button>
+          <div
+            className={`mx-auto flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 ${
+              isSoloRoute && soloView === "game" ? "max-w-6xl" : "max-w-5xl"
+            }`}
+          >
+            {!transparentHeader && (
+              <div className="min-w-0">
+                <h1 className="text-title text-lg sm:text-xl">{t("appName")}</h1>
+              </div>
             )}
+            {transparentHeader && <div className="flex-1" aria-hidden />}
+            <div className="flex shrink-0 items-center gap-2">
+              <LanguageSwitcher />
+              {showRecordsButton && (
+                <button
+                  type="button"
+                  onClick={openRecords}
+                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
+                >
+                  {t("records.title")}
+                  {records.length > 0 && (
+                    <span className="tabular-nums">({records.length})</span>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
       )}
 
       <main
         className={`mx-auto ${
-          immersiveGame
+          fullScreenMain
             ? "p-0"
-            : view === "home"
+            : transparentHeader
               ? "flex w-full flex-1 flex-col px-5 sm:px-6"
-                : view === "game"
+              : isSoloRoute && soloView === "game"
                 ? "flex min-h-0 flex-1 w-full flex-col overflow-hidden p-0"
                 : "w-full px-3 py-4 sm:px-6 sm:py-6"
-        } ${view === "game" ? "max-w-none" : view === "home" ? "max-w-5xl" : "max-w-5xl"}`}
+        } ${
+          isSoloRoute && soloView === "game"
+            ? "max-w-none"
+            : transparentHeader
+              ? "max-w-5xl"
+              : "max-w-5xl"
+        }`}
       >
-        {view === "home" && (
-          <HomeView
-            difficulty={difficulty}
-            onDifficultyChange={setDifficulty}
-            onPhotoSelect={handlePhotoSelect}
-            loading={loading}
-            error={error}
-          />
-        )}
-
-        {view === "game" && seed && (
-          <ColorGuessingGame
-            key={seed.id}
-            photoDataUrl={seed.photoDataUrl}
-            difficulty={seed.difficulty}
-            targetColors={seed.targetColors}
-            targetPositions={seed.targetPositions}
-            initialGameState={gameState}
-            onGameStateChange={setGameState}
-            onNewPhoto={handleNewPhoto}
-            onPlayAgain={handlePlayAgain}
-            playAgainBusy={loading}
-            onSaved={handleSaved}
-          />
-        )}
-
-        {view === "records" && (
-          <RecordsView
-            records={records}
-            onBack={() => setView(seed ? "game" : "home")}
-            onDelete={handleDeleteRecord}
-            onClearAll={handleClearAllRecords}
-          />
-        )}
+        {renderMain()}
       </main>
     </div>
   );
