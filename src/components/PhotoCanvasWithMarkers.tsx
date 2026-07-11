@@ -30,7 +30,7 @@ interface PhotoCanvasWithMarkersProps {
 const MAX_VIEWPORT_HEIGHT_RATIO = 0.72;
 const CROP_RADIUS = 22;
 const CROP_DISPLAY = 96;
-const COMPACT_CROP_DISPLAY = 72;
+const COMPACT_CROP_DISPLAY = 88;
 const HIT_LINE_WIDTH = 14;
 const HIT_CIRCLE_R = 22;
 const LIGHT_LUM_THRESHOLD = 140;
@@ -141,8 +141,9 @@ function drawCropCanvas(
   cy: number,
   hex: string,
   overlayStroke: string,
+  displaySize = CROP_DISPLAY,
 ) {
-  const size = CROP_DISPLAY;
+  const size = displaySize;
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d");
@@ -154,25 +155,29 @@ function drawCropCanvas(
   const sw = Math.min(half * 2, source.width - sx);
   const sh = Math.min(half * 2, source.height - sy);
 
+  // Keep crop square even near photo edges so the two cells stay even.
+  const side = Math.min(sw, sh);
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(source, sx, sy, sw, sh, 0, 0, size, size);
+  ctx.clearRect(0, 0, size, size);
+  ctx.drawImage(source, sx, sy, side, side, 0, 0, size, size);
 
   const center = size / 2;
+  const cross = Math.max(6, Math.round(size * 0.09));
 
   ctx.strokeStyle = overlayStroke;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(center - 8, center);
-  ctx.lineTo(center + 8, center);
-  ctx.moveTo(center, center - 8);
-  ctx.lineTo(center, center + 8);
+  ctx.moveTo(center - cross, center);
+  ctx.lineTo(center + cross, center);
+  ctx.moveTo(center, center - cross);
+  ctx.lineTo(center, center + cross);
   ctx.stroke();
 
   ctx.fillStyle = hex;
   ctx.strokeStyle = overlayStroke;
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(center, center, 4, 0, Math.PI * 2);
+  ctx.arc(center, center, Math.max(3, Math.round(size * 0.04)), 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 }
@@ -420,6 +425,7 @@ export function PhotoCanvasWithMarkers({
     const ty = targetPos.y * source.height;
     const ux = guessPos.x * source.width;
     const uy = guessPos.y * source.height;
+    const cropPx = compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY;
 
     const strokes = resolvePairStrokes(
       samplePhotoLuminance(source, tx, ty),
@@ -435,6 +441,7 @@ export function PhotoCanvasWithMarkers({
       ty,
       targetColors[activeIndex],
       strokes.targetStroke,
+      cropPx,
     );
     drawCropCanvas(
       guessCanvas,
@@ -443,10 +450,12 @@ export function PhotoCanvasWithMarkers({
       uy,
       userColors[activeIndex],
       strokes.guessStroke,
+      cropPx,
     );
   }, [
     activeIndex,
     canvasSize,
+    compact,
     targetPositions,
     userPositions,
     targetColors,
@@ -483,55 +492,71 @@ export function PhotoCanvasWithMarkers({
     },
   );
 
+  const cropSize = compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY;
+  const targetLabel = compact
+    ? t("game.target")
+    : t("game.cellTarget", { n: (activeIndex ?? 0) + 1 });
+  const yoursLabel = compact
+    ? t("game.yours")
+    : t("game.cellYours", { n: (activeIndex ?? 0) + 1 });
+
   const comparisonPanel = activeIndex !== null && (
     <div
-      className={`relative flex items-start justify-center rounded-xl bg-white/95 shadow-lg ring-1 ring-stone-200 backdrop-blur-sm pointer-events-auto ${
-        compact
-          ? "max-w-[min(100%,20rem)] flex-row flex-nowrap gap-2 px-3 py-2"
-          : "flex-row flex-nowrap gap-3 px-3 py-2.5"
+      className={`relative rounded-xl bg-white/95 shadow-lg ring-1 ring-stone-200 backdrop-blur-sm pointer-events-auto ${
+        compact ? "w-max max-w-full p-2.5 pt-3" : "px-3 py-2.5"
       }`}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex w-[calc(50%-0.25rem)] min-w-0 shrink-0 flex-col items-center gap-1">
-        <span className="whitespace-nowrap text-center text-[10px] font-medium uppercase tracking-wide text-stone-500">
-          {t("game.cellTarget", { n: activeIndex + 1 })}
-        </span>
-        <canvas
-          ref={targetCropRef}
-          className="rounded-md ring-1 ring-inset ring-stone-300"
-          style={{
-            width: compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY,
-            height: compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY,
-          }}
-        />
-        <span className="font-mono text-[10px] text-stone-600">
-          {targetColors[activeIndex]}
-        </span>
-      </div>
-      <div className="flex w-[calc(50%-0.25rem)] min-w-0 shrink-0 flex-col items-center gap-1">
-        <span className="whitespace-nowrap text-center text-[10px] font-medium uppercase tracking-wide text-stone-500">
-          {t("game.cellYours", { n: activeIndex + 1 })}
-        </span>
-        <canvas
-          ref={guessCropRef}
-          className="rounded-md ring-1 ring-inset ring-amber-400/80"
-          style={{
-            width: compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY,
-            height: compact ? COMPACT_CROP_DISPLAY : CROP_DISPLAY,
-          }}
-        />
-        <span className="font-mono text-[10px] text-stone-600">
-          {userColors[activeIndex]}
-        </span>
+      <div
+        className={`grid grid-cols-2 ${compact ? "gap-2.5" : "gap-3"}`}
+      >
+        <div
+          className={`flex flex-col items-center gap-1.5 ${
+            compact
+              ? "rounded-lg bg-stone-50 px-2 py-2 ring-1 ring-stone-200"
+              : ""
+          }`}
+        >
+          <span className="text-center text-[11px] font-medium leading-none text-stone-500">
+            {targetLabel}
+          </span>
+          <canvas
+            ref={targetCropRef}
+            className="block shrink-0 rounded-md ring-1 ring-inset ring-stone-300"
+            style={{ width: cropSize, height: cropSize }}
+            width={cropSize}
+            height={cropSize}
+          />
+          <span className="font-mono text-[10px] leading-none text-stone-600">
+            {targetColors[activeIndex]}
+          </span>
+        </div>
+        <div
+          className={`flex flex-col items-center gap-1.5 ${
+            compact
+              ? "rounded-lg bg-stone-50 px-2 py-2 ring-1 ring-stone-200"
+              : ""
+          }`}
+        >
+          <span className="text-center text-[11px] font-medium leading-none text-stone-500">
+            {yoursLabel}
+          </span>
+          <canvas
+            ref={guessCropRef}
+            className="block shrink-0 rounded-md ring-1 ring-inset ring-amber-400/80"
+            style={{ width: cropSize, height: cropSize }}
+            width={cropSize}
+            height={cropSize}
+          />
+          <span className="font-mono text-[10px] leading-none text-stone-600">
+            {userColors[activeIndex]}
+          </span>
+        </div>
       </div>
       <button
         type="button"
         onClick={() => setActiveIndex(null)}
-        className={`absolute flex items-center justify-center rounded-full bg-stone-800 text-white shadow ring-2 ring-white ${
-          compact
-            ? "-right-1.5 -top-1.5 h-6 w-6 text-xs"
-            : "-right-2 -top-2 h-7 w-7 text-sm"
-        }`}
+        className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-stone-800 text-sm text-white shadow ring-2 ring-white"
         aria-label={t("game.closeCompare")}
       >
         ×
@@ -547,7 +572,7 @@ export function PhotoCanvasWithMarkers({
     >
       <div
         ref={containerRef}
-        className={`flex w-full justify-center ${
+        className={`relative flex w-full justify-center ${
           fillContainer ? "min-h-0 flex-1 items-center" : ""
         }`}
       >
@@ -599,7 +624,7 @@ export function PhotoCanvasWithMarkers({
                   const pos = ghost.userPositions[i] ?? { x: 0.5, y: 0.5 };
                   const ux = pos.x * w;
                   const uy = pos.y * h;
-                      const accent = getPlayerColor(ghost.colorIndex);
+                  const accent = getPlayerColor(ghost.colorIndex);
                   const dimGhost = activeIndex !== null && activeIndex !== i;
                   return (
                     <g key={`${ghost.playerId}-${i}`} opacity={dimGhost ? 0.35 : 0.85}>
@@ -618,12 +643,12 @@ export function PhotoCanvasWithMarkers({
               )}
             </svg>
           )}
-          {comparisonPanel && (
-            <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center p-2">
-              {comparisonPanel}
-            </div>
-          )}
         </div>
+        {comparisonPanel && (
+          <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-3 py-2">
+            {comparisonPanel}
+          </div>
+        )}
       </div>
     </div>
   );

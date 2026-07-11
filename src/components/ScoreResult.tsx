@@ -170,8 +170,13 @@ export function ScoreResult({
         })}
       </div>
 
-      {onSelectDetailIndex && selectedDetailIndex === null && (
-        <p className="text-caption mt-3 text-center text-xs">
+      {onSelectDetailIndex && (
+        <p
+          className={`text-caption mt-3 text-center text-xs ${
+            selectedDetailIndex === null ? "" : "invisible"
+          }`}
+          aria-hidden={selectedDetailIndex !== null}
+        >
           {t("score.tapToInspect")}
         </p>
       )}
