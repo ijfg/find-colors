@@ -115,6 +115,11 @@ export const translations = {
   },
   score: {
     total: { en: "Score", "zh-Hans": "总分", "zh-Hant": "總分" },
+    resultsTitle: {
+      en: "Results",
+      "zh-Hans": "结果",
+      "zh-Hant": "結果",
+    },
     cellLabel: {
       en: "Cell {n}",
       "zh-Hans": "第 {n} 格",

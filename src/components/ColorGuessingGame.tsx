@@ -20,6 +20,7 @@ interface ColorGuessingGameProps {
   initialGameState?: PersistedGameState;
   onGameStateChange?: (state: PersistedGameState) => void;
   onNewPhoto: () => void;
+  onBackHome?: () => void;
   onPlayAgain: () => void;
   playAgainBusy?: boolean;
   onSaved?: () => void;
@@ -71,6 +72,7 @@ export function ColorGuessingGame({
   initialGameState,
   onGameStateChange,
   onNewPhoto,
+  onBackHome,
   onPlayAgain,
   playAgainBusy = false,
   onSaved,
@@ -117,6 +119,56 @@ export function ColorGuessingGame({
   function renderRoomStatus(mode: "sidebar" | "overlay") {
     if (!roomStatus || submitted) return null;
     return <RoomPlayerStatus room={roomStatus} mode={mode} />;
+  }
+
+  function renderResultsHeader(compact = false) {
+    return (
+      <div
+        className={`sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-stone-200/80 bg-[#f7f5f2]/95 backdrop-blur-sm ${
+          compact ? "px-3 py-2" : "px-4 py-3"
+        }`}
+      >
+        <div className="min-w-0">
+          <h2 className={`text-title ${compact ? "text-base" : "text-lg"}`}>
+            {t("score.resultsTitle")}
+          </h2>
+        </div>
+        {onBackHome && (
+          <button
+            type="button"
+            onClick={onBackHome}
+            className="shrink-0 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 sm:px-3 sm:text-sm"
+          >
+            {t("room.backHome")}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  function renderSoloScorePanel(opts?: { compactScore?: boolean; tightHeader?: boolean }) {
+    if (!result) return null;
+    return (
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {renderResultsHeader(opts?.tightHeader)}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-3 sm:px-4">
+          {saveError && (
+            <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs text-amber-800 ring-1 ring-amber-200">
+              {saveError}
+            </p>
+          )}
+          <ScoreResult
+            result={result}
+            onPlayAgain={onPlayAgain}
+            playAgainBusy={playAgainBusy}
+            onNewPhoto={onNewPhoto}
+            selectedDetailIndex={resultDetailIndex}
+            onSelectDetailIndex={setResultDetailIndex}
+            compact={opts?.compactScore}
+          />
+        </div>
+      </div>
+    );
   }
 
   useEffect(() => {
@@ -422,6 +474,27 @@ export function ColorGuessingGame({
     sidebarWidth: string,
     rootClassName: string,
   ) {
+    const showResults = submitted && result && !hideScoreUntilReveal;
+
+    if (showResults) {
+      return (
+        <div
+          className={rootClassName}
+          onPointerDownCapture={handleBackgroundPointerDown}
+        >
+          <div
+            ref={photoSlotRef}
+            className="relative min-h-0 min-w-0 flex-1 overflow-hidden bg-stone-900/5"
+          >
+            {renderPhotoCanvas()}
+          </div>
+          <div className="flex h-full w-[min(48%,20rem)] shrink-0 flex-col overflow-hidden border-l border-stone-200/80 bg-[#f7f5f2]">
+            {renderSoloScorePanel({ compactScore: true, tightHeader: true })}
+          </div>
+        </div>
+      );
+    }
+
     const sidebarStyle = {
       flex: `0 0 ${sidebarWidth}`,
       width: sidebarWidth,
@@ -459,25 +532,6 @@ export function ColorGuessingGame({
             {renderRoomStatus("overlay")}
             {renderPhotoCanvas()}
           </div>
-          {submitted && result && !hideScoreUntilReveal && (
-            <div className="max-h-[42vh] shrink-0 overflow-y-auto overscroll-y-contain border-t border-stone-200/80 bg-white/95 p-2 touch-pan-y">
-              {saveError && (
-                <p className="mb-2 rounded-lg bg-amber-50 px-2 py-1.5 text-center text-[10px] leading-snug text-amber-800 ring-1 ring-amber-200">
-                  {saveError}
-                </p>
-              )}
-              <div className="[&_.text-score]:text-3xl [&_.rounded-2xl]:rounded-xl [&_button]:text-xs">
-                <ScoreResult
-                  result={result}
-                  onPlayAgain={onPlayAgain}
-                  playAgainBusy={playAgainBusy}
-                  onNewPhoto={onNewPhoto}
-                  selectedDetailIndex={resultDetailIndex}
-                  onSelectDetailIndex={setResultDetailIndex}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         <div
@@ -531,24 +585,9 @@ export function ColorGuessingGame({
           {renderDesktopMarkerLegend()}
         </div>
 
-        <div className="flex w-[clamp(18rem,32vw,24rem)] shrink-0 flex-col border-l border-stone-200/50">
+        <div className="flex w-[clamp(18rem,32vw,24rem)] shrink-0 flex-col border-l border-stone-200/50 bg-[#f7f5f2]">
           {submitted && result && !hideScoreUntilReveal ? (
-            <div className="flex h-full min-h-0 w-full flex-col overflow-y-auto px-4 py-6">
-              {saveError && (
-                <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-center text-xs text-amber-800 ring-1 ring-amber-200">
-                  {saveError}
-                </p>
-              )}
-              <ScoreResult
-                result={result}
-                onPlayAgain={onPlayAgain}
-                playAgainBusy={playAgainBusy}
-                onNewPhoto={onNewPhoto}
-                selectedDetailIndex={resultDetailIndex}
-                onSelectDetailIndex={setResultDetailIndex}
-                compact
-              />
-            </div>
+            renderSoloScorePanel({ compactScore: true })
           ) : (
             <div className="flex h-full min-h-0 flex-col gap-2 px-4 py-6">
               <div className="flex min-h-0 flex-1 flex-col items-center justify-center">
@@ -595,6 +634,30 @@ export function ColorGuessingGame({
       return renderSidebarGameLayout("7rem", `${MOBILE_SHELL} flex flex-row`);
     }
 
+    const showResults = submitted && result && !hideScoreUntilReveal;
+
+    if (showResults) {
+      return (
+        <div
+          className={`${MOBILE_SHELL} flex flex-col`}
+          onPointerDownCapture={handleBackgroundPointerDown}
+        >
+          <div
+            ref={photoSlotRef}
+            className="relative min-h-0 w-full flex-1 overflow-hidden bg-stone-900/5"
+          >
+            {renderPhotoCanvas()}
+          </div>
+          <div
+            ref={bottomChromeRef}
+            className="flex max-h-[55vh] min-h-0 shrink-0 flex-col overflow-hidden border-t border-stone-200/80 bg-[#f7f5f2]"
+          >
+            {renderSoloScorePanel({ compactScore: true, tightHeader: true })}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div
         className={`${MOBILE_SHELL} flex flex-col`}
@@ -607,9 +670,9 @@ export function ColorGuessingGame({
             variant="toolbar"
             label={t("game.target")}
             selectedIndex={activeIndex}
-            onSelectCell={submitted ? undefined : handleSelectTarget}
+            onSelectCell={handleSelectTarget}
           />
-          {!submitted && !mobileLandscapeLayout && renderPickingHint("mt-1.5 text-[11px] text-stone-500")}
+          {!mobileLandscapeLayout && renderPickingHint("mt-1.5 text-[11px] text-stone-500")}
         </div>
 
         <div
@@ -629,34 +692,16 @@ export function ColorGuessingGame({
             variant="toolbar"
             label={t("game.yoursCount", { filled: filledCount, count })}
             selectedIndex={activeIndex}
-            onSelectCell={submitted ? undefined : handleSelectUserCell}
+            onSelectCell={handleSelectUserCell}
             allowEmpty
             selectedTone="amber"
           />
 
-          {!submitted && roomStatus && (
+          {roomStatus && (
             <div className="shrink-0">{renderRoomStatus("sidebar")}</div>
           )}
 
-          {!submitted && renderActionButtons(true)}
-
-          {submitted && result && !hideScoreUntilReveal && (
-            <div className="max-h-[32vh] space-y-2 overflow-y-auto overscroll-y-contain p-1">
-              {saveError && (
-                <p className="rounded-lg bg-amber-50 px-3 py-2 text-center text-xs text-amber-800 ring-1 ring-amber-200">
-                  {saveError}
-                </p>
-              )}
-              <ScoreResult
-                result={result}
-                onPlayAgain={onPlayAgain}
-                playAgainBusy={playAgainBusy}
-                onNewPhoto={onNewPhoto}
-                selectedDetailIndex={resultDetailIndex}
-                onSelectDetailIndex={setResultDetailIndex}
-              />
-            </div>
-          )}
+          {renderActionButtons(true)}
         </div>
       </div>
     );

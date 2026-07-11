@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Position } from "../types";
+import { useCompactWidth } from "../hooks/useMedia";
 import { useLocale } from "../i18n";
 import {
   computePhotoCanvasLayout,
@@ -45,6 +46,7 @@ export function RoomMultiPlayerPhoto({
   fillContainer = false,
 }: RoomMultiPlayerPhotoProps) {
   useLocale();
+  const compact = useCompactWidth();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -246,21 +248,30 @@ export function RoomMultiPlayerPhoto({
       {photoBlock}
 
       {showDetail && detailStrip && (
-        <div
-          className={`pointer-events-none absolute z-10 ${
-            isLandscapePhoto
-              ? "inset-x-0 bottom-0 flex justify-center px-2 pb-2 pt-6"
-              : "left-2 top-1/2 max-h-[88%] -translate-y-1/2"
-          }`}
-        >
+        compact ? (
+          /* Mobile: fixed so the strip isn't clipped by the short photo pane. */
+          <div className="pointer-events-none fixed inset-x-2 top-[max(0.5rem,env(safe-area-inset-top))] z-50 flex justify-center">
+            <div className="pointer-events-auto w-full max-w-sm max-h-[min(72dvh,calc(100dvh-8rem))] overflow-y-auto overscroll-y-contain rounded-xl shadow-lg">
+              {detailStrip}
+            </div>
+          </div>
+        ) : (
           <div
-            className={`pointer-events-auto max-h-full ${
-              isLandscapePhoto ? "w-full max-w-full" : ""
+            className={`pointer-events-none absolute z-10 ${
+              isLandscapePhoto
+                ? "inset-x-0 bottom-0 flex justify-center px-2 pb-2 pt-6"
+                : "left-2 top-1/2 max-h-[88%] -translate-y-1/2 overflow-y-auto"
             }`}
           >
-            {detailStrip}
+            <div
+              className={`pointer-events-auto max-h-full ${
+                isLandscapePhoto ? "w-full max-w-full" : ""
+              }`}
+            >
+              {detailStrip}
+            </div>
           </div>
-        </div>
+        )
       )}
     </div>
   );

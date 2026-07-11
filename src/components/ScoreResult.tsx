@@ -76,7 +76,7 @@ export function ScoreResult({
 
   return (
     <div
-      className={`min-w-0 overflow-hidden rounded-2xl border border-[var(--color-border-strong)] bg-white ${
+      className={`min-w-0 rounded-2xl border border-[var(--color-border-strong)] bg-white ${
         tight ? "p-2.5" : compact ? "p-3" : "p-4 sm:p-5"
       }`}
       data-preserve-selection
@@ -97,7 +97,7 @@ export function ScoreResult({
           className={`flex flex-wrap items-baseline gap-x-2 gap-y-1 ${hideTotalLabel ? "" : "mt-1"}`}
         >
           <span
-            className={`text-score ${tight ? "text-3xl" : compact ? "text-4xl" : "text-5xl"} ${tone}`}
+            className={`text-score ${tight ? "text-3xl" : compact ? "text-3xl" : "text-5xl"} ${tone}`}
           >
             {total}
           </span>

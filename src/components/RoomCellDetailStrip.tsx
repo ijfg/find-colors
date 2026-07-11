@@ -229,7 +229,7 @@ export function RoomCellDetailStrip({
       data-preserve-selection
     >
       {layout === "vertical" ? (
-        <div className="flex max-h-[min(70vh,28rem)] w-[min(13rem,42vw)] flex-col gap-1.5 overflow-y-auto overscroll-y-contain">
+        <div className="flex w-[min(16rem,calc(100vw-2rem))] flex-col gap-1.5 sm:w-[min(13rem,42vw)]">
           <DetailRow
             label={targetLabel}
             photoDataUrl={photoDataUrl}

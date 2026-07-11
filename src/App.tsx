@@ -198,6 +198,16 @@ export default function App() {
     clearSession();
     setSeed(null);
     setGameState(undefined);
+    setError(null);
+    setSoloView("soloSetup");
+    navigate("/");
+  }
+
+  function handleBackHome() {
+    clearSession();
+    setSeed(null);
+    setGameState(undefined);
+    setError(null);
     setSoloView("home");
     navigate("/");
   }
@@ -275,6 +285,7 @@ export default function App() {
           initialGameState={gameState}
           onGameStateChange={setGameState}
           onNewPhoto={handleNewPhoto}
+          onBackHome={handleBackHome}
           onPlayAgain={handlePlayAgain}
           playAgainBusy={loading}
           onSaved={handleSaved}
