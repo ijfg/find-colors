@@ -107,7 +107,9 @@ export function RoomMultiPlayerPhoto({
   const isLandscapePhoto = w > 0 && h > 0 && w >= h;
   const showDetail = selectedIndex !== null && detailPlayers.length > 0;
 
-  const detailLayout = isLandscapePhoto ? "horizontal" : "vertical";
+  // Mobile: always horizontal + swipe, matching landscape results detail.
+  // Desktop portrait photos keep a vertical stack beside the photo.
+  const detailLayout = compact || isLandscapePhoto ? "horizontal" : "vertical";
 
   const detailStrip =
     showDetail && selectedIndex !== null ? (
@@ -240,6 +242,8 @@ export function RoomMultiPlayerPhoto({
     </div>
   );
 
+  const useBottomStrip = compact || isLandscapePhoto;
+
   return (
     <div
       ref={containerRef}
@@ -248,30 +252,21 @@ export function RoomMultiPlayerPhoto({
       {photoBlock}
 
       {showDetail && detailStrip && (
-        compact ? (
-          /* Mobile: fixed so the strip isn't clipped by the short photo pane. */
-          <div className="pointer-events-none fixed inset-x-2 top-[max(0.5rem,env(safe-area-inset-top))] z-50 flex justify-center">
-            <div className="pointer-events-auto w-full max-w-sm max-h-[min(72dvh,calc(100dvh-8rem))] overflow-y-auto overscroll-y-contain rounded-xl shadow-lg">
-              {detailStrip}
-            </div>
-          </div>
-        ) : (
+        <div
+          className={`pointer-events-none absolute z-10 ${
+            useBottomStrip
+              ? "inset-x-0 bottom-0 flex justify-center px-2 pb-2 pt-4"
+              : "left-2 top-1/2 max-h-[88%] -translate-y-1/2 overflow-y-auto"
+          }`}
+        >
           <div
-            className={`pointer-events-none absolute z-10 ${
-              isLandscapePhoto
-                ? "inset-x-0 bottom-0 flex justify-center px-2 pb-2 pt-6"
-                : "left-2 top-1/2 max-h-[88%] -translate-y-1/2 overflow-y-auto"
+            className={`pointer-events-auto max-h-full ${
+              useBottomStrip ? "w-full max-w-full" : ""
             }`}
           >
-            <div
-              className={`pointer-events-auto max-h-full ${
-                isLandscapePhoto ? "w-full max-w-full" : ""
-              }`}
-            >
-              {detailStrip}
-            </div>
+            {detailStrip}
           </div>
-        )
+        </div>
       )}
     </div>
   );

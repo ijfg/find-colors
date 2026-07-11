@@ -256,8 +256,8 @@ export function RoomCellDetailStrip({
           })}
         </div>
       ) : (
-        <div className="flex justify-center">
-          <div className="flex max-w-full justify-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="w-full touch-pan-x overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-max min-w-full justify-center gap-2 px-0.5">
             <DetailColumn
               label={targetLabel}
               photoDataUrl={photoDataUrl}
