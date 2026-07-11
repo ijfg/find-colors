@@ -173,7 +173,9 @@ export function RoomLeaderboardView({
               onClick={() => {
                 if (canSelect) setSelectedId(entry.playerId);
               }}
-              className={`flex w-full items-start gap-3 rounded-xl px-3 py-3 text-left transition-all ${rankAccent(entry.rank)} ${
+              className={`flex w-full items-start rounded-xl text-left transition-all ${
+                sideBySide ? "gap-2 px-2.5 py-2.5" : "gap-3 px-3 py-3"
+              } ${rankAccent(entry.rank)} ${
                 active
                   ? "ring-2 ring-stone-400 ring-offset-1"
                   : canSelect
@@ -182,9 +184,13 @@ export function RoomLeaderboardView({
               } ${!canSelect ? "cursor-default" : ""}`}
             >
               <span
-                className={`mt-0.5 w-8 shrink-0 text-center leading-none ${
+                className={`mt-0.5 shrink-0 text-center leading-none ${
+                  sideBySide ? "w-7" : "w-8"
+                } ${
                   entry.rank <= 3
-                    ? "text-xl"
+                    ? sideBySide
+                      ? "text-lg"
+                      : "text-xl"
                     : "text-base font-bold tabular-nums text-stone-400"
                 }`}
                 aria-label={`#${entry.rank}`}
@@ -192,9 +198,12 @@ export function RoomLeaderboardView({
                 {rankBadge(entry.rank)}
               </span>
 
-              <div className="min-w-0 flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 text-lg leading-none" aria-hidden>
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`shrink-0 leading-none ${sideBySide ? "text-base" : "text-lg"}`}
+                    aria-hidden
+                  >
                     {emoji}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-800">
@@ -205,11 +214,17 @@ export function RoomLeaderboardView({
                       </span>
                     )}
                   </span>
-                  <span className="text-score shrink-0 text-xl tabular-nums text-stone-800">
+                  <span
+                    className={`text-score shrink-0 tabular-nums text-stone-800 ${
+                      sideBySide ? "text-base" : "text-xl"
+                    }`}
+                  >
                     {entry.submitted && entry.totalScore !== null ? (
                       <>
                         {entry.totalScore}
-                        <ScoreDenom className="text-caption text-sm" />
+                        <ScoreDenom
+                          className={`text-caption ${sideBySide ? "text-[10px]" : "text-sm"}`}
+                        />
                       </>
                     ) : (
                       <span className="text-sm font-normal text-stone-400">
@@ -221,7 +236,7 @@ export function RoomLeaderboardView({
                 {entry.userColors && entry.userColors.length > 0 && (
                   <MiniPalette
                     colors={entry.userColors}
-                    size={compactPalette ? "sm" : "md"}
+                    size={compactPalette || sideBySide ? "sm" : "md"}
                   />
                 )}
               </div>
@@ -235,14 +250,16 @@ export function RoomLeaderboardView({
   return (
     <div
       className={`fixed inset-0 z-40 flex bg-[#f7f5f2] ${
-        sideBySide ? "flex-row overflow-hidden" : "flex-col md:flex-row md:overflow-hidden"
+        sideBySide
+          ? "flex-row overflow-hidden"
+          : "flex-col md:flex-row md:overflow-hidden"
       }`}
     >
       <div
-        className={`relative flex shrink-0 flex-col bg-stone-900/5 ${
+        className={`relative flex min-w-0 flex-col bg-stone-900/5 ${
           sideBySide
             ? "min-h-0 flex-1"
-            : "h-[36vh] md:h-auto md:min-h-0 md:flex-1"
+            : "h-[36vh] shrink-0 md:h-auto md:min-h-0 md:flex-1"
         }`}
       >
         {photoUrl && photoPlayers.length > 0 ? (
@@ -264,15 +281,21 @@ export function RoomLeaderboardView({
       </div>
 
       <aside
-        className={`flex min-h-0 flex-col ${
+        className={`flex min-h-0 min-w-0 flex-col ${
           sideBySide
-            ? "w-[clamp(18rem,42vw,26rem)] shrink-0 overflow-hidden"
-            : "min-h-0 flex-1 md:w-[clamp(22rem,38vw,32rem)] md:shrink-0"
+            ? "w-[min(48%,20rem)] shrink-0 overflow-hidden"
+            : "flex-1 md:w-[clamp(22rem,38vw,32rem)] md:shrink-0"
         }`}
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-stone-200/80 bg-[#f7f5f2]/95 px-4 py-3 backdrop-blur-sm">
-          <div>
-            <h2 className="text-title text-lg">{t("room.leaderboardTitle")}</h2>
+        <div
+          className={`sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-stone-200/80 bg-[#f7f5f2]/95 backdrop-blur-sm ${
+            sideBySide ? "px-3 py-2" : "px-4 py-3"
+          }`}
+        >
+          <div className="min-w-0">
+            <h2 className={`text-title ${sideBySide ? "text-base" : "text-lg"}`}>
+              {t("room.leaderboardTitle")}
+            </h2>
             <p className="text-caption text-[11px]">
               {t("room.submittedCount", {
                 submitted: String(submittedCount),
@@ -286,16 +309,21 @@ export function RoomLeaderboardView({
               onLeave();
               navigate("/");
             }}
-            className="shrink-0 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 hover:bg-stone-50"
+            className="shrink-0 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 sm:px-3 sm:text-sm"
           >
             {t("room.backHome")}
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+        <div
+          className={`min-h-0 flex-1 overflow-x-hidden overflow-y-auto ${
+            sideBySide ? "px-3 py-2" : "px-4 py-3"
+          }`}
+        >
+          {/* Phone landscape: stack score + rankings so the narrow aside doesn't clip. */}
           <div
             className={`grid items-start gap-3 ${
-              sideBySide ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2"
+              sideBySide ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
             }`}
           >
             {selectedResult && selectedEntry && (
@@ -322,7 +350,7 @@ export function RoomLeaderboardView({
               </div>
             )}
 
-            <div className={`min-w-0 ${selectedResult ? "" : "md:col-span-2"}`}>
+            <div className={`min-w-0 ${selectedResult && !sideBySide ? "md:col-span-1" : ""}`}>
               <p className="text-caption mb-2 text-[10px] font-medium uppercase tracking-wide">
                 {t("room.rankings")}
               </p>

@@ -54,10 +54,20 @@ export function ScoreResult({
   const { total, details } = result;
   const { labelKey, tone } = rating(total);
   const swatchSize = tight
-    ? "h-8 w-8"
+    ? "h-7 w-7"
     : pairedLayout
       ? "h-10 w-10"
       : "h-11 w-11";
+  const cellCount = details.length;
+  const cellGridClass = tight
+    ? cellCount <= 1
+      ? "grid-cols-1"
+      : "grid-cols-2"
+    : pairedLayout
+      ? "grid-cols-2"
+      : compact
+        ? "grid-cols-2"
+        : "grid-cols-2 sm:grid-cols-4";
 
   function handleSelectDetail(index: number) {
     const next = selectedDetailIndex === index ? null : index;
@@ -66,8 +76,8 @@ export function ScoreResult({
 
   return (
     <div
-      className={`min-w-0 rounded-2xl border border-[var(--color-border-strong)] bg-white ${
-        compact ? "p-3" : "p-4 sm:p-5"
+      className={`min-w-0 overflow-hidden rounded-2xl border border-[var(--color-border-strong)] bg-white ${
+        tight ? "p-2.5" : compact ? "p-3" : "p-4 sm:p-5"
       }`}
       data-preserve-selection
     >
@@ -83,11 +93,17 @@ export function ScoreResult({
             {t("score.total")}
           </p>
         )}
-        <div className={`flex flex-wrap items-baseline gap-x-2 gap-y-1 ${hideTotalLabel ? "" : "mt-1"}`}>
-          <span className={`text-score ${compact ? "text-4xl" : "text-5xl"} ${tone}`}>
+        <div
+          className={`flex flex-wrap items-baseline gap-x-2 gap-y-1 ${hideTotalLabel ? "" : "mt-1"}`}
+        >
+          <span
+            className={`text-score ${tight ? "text-3xl" : compact ? "text-4xl" : "text-5xl"} ${tone}`}
+          >
             {total}
           </span>
-          {!hideScoreDenom && <ScoreDenom />}
+          {!hideScoreDenom && (
+            <ScoreDenom className={tight ? "text-caption text-xs" : "text-caption"} />
+          )}
           {rank != null && rankTotal != null && (
             <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-600">
               {t("records.roomRank", {
@@ -100,11 +116,7 @@ export function ScoreResult({
         </div>
       </div>
 
-      <div
-        className={`mt-3 grid gap-1.5 ${
-          pairedLayout ? "grid-cols-2" : compact ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4"
-        }`}
-      >
+      <div className={`mt-3 grid gap-1.5 ${cellGridClass}`}>
         {details.map((d) => {
           const selected = selectedDetailIndex === d.index;
           return (
@@ -113,42 +125,44 @@ export function ScoreResult({
               type="button"
               onClick={() => handleSelectDetail(d.index)}
               aria-pressed={selected}
-              className={`min-w-0 rounded-lg bg-white text-left transition-all ${
-                pairedLayout ? "p-2" : "p-3"
+              className={`min-w-0 rounded-lg bg-stone-50 text-left transition-all ${
+                tight ? "p-1.5" : pairedLayout ? "p-2" : "p-3"
               } ${
                 selected
                   ? "ring-1 ring-inset ring-stone-400"
                   : "ring-1 ring-inset ring-stone-200 hover:ring-stone-300"
               }`}
             >
-              <div className="mb-1.5 flex items-center justify-between gap-1 text-[10px] text-stone-400">
+              <div className="mb-1.5 flex items-center justify-between gap-1 text-[10px] text-stone-500">
                 <span className="truncate">{t("score.cellLabel", { n: d.index + 1 })}</span>
-                <span className="shrink-0 font-mono font-medium text-stone-700">
+                <span className="shrink-0 font-mono font-medium text-stone-800">
                   {d.score}
-                  {!hideScoreDenom && <span className="font-normal text-stone-400">/100</span>}
+                  {!hideScoreDenom && (
+                    <span className="font-normal text-stone-500">/100</span>
+                  )}
                 </span>
               </div>
-              <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                <div className="flex flex-col items-center gap-0.5">
+              <div className={`flex items-center justify-center ${tight ? "gap-1" : "gap-1.5 sm:gap-2"}`}>
+                <div className="flex min-w-0 flex-col items-center gap-0.5">
                   <div
-                    className={`rounded-sm ring-1 ring-inset ring-stone-200/80 ${swatchSize}`}
+                    className={`rounded-sm ring-1 ring-inset ring-stone-300/90 ${swatchSize}`}
                     style={{ backgroundColor: d.target }}
                   />
-                  <span className="whitespace-nowrap text-[9px] text-stone-400">
+                  <span className="whitespace-nowrap text-[9px] font-medium text-stone-500">
                     {t("score.targetSmall")}
                   </span>
                 </div>
-                <div className="flex flex-col items-center gap-0.5">
+                <div className="flex min-w-0 flex-col items-center gap-0.5">
                   <div
-                    className={`rounded-sm ring-1 ring-inset ring-stone-200/80 ${swatchSize}`}
+                    className={`rounded-sm ring-1 ring-inset ring-stone-300/90 ${swatchSize}`}
                     style={{ backgroundColor: d.guess }}
                   />
-                  <span className="whitespace-nowrap text-[9px] text-stone-400">
+                  <span className="whitespace-nowrap text-[9px] font-medium text-stone-500">
                     {t("score.yoursSmall")}
                   </span>
                 </div>
               </div>
-              <p className="mt-1 text-center font-mono text-[10px] text-stone-400">
+              <p className="mt-1 text-center font-mono text-[10px] text-stone-500">
                 ΔE {d.deltaE.toFixed(1)}
               </p>
             </button>
