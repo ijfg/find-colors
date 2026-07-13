@@ -1,16 +1,16 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import type { RoomChallenge } from "../lib/types.js";
+import type { RoomChallenge } from "../_lib/types.js";
 import {
   createRoom,
   getShareUrl,
-} from "../lib/roomService.js";
+} from "../_lib/roomService.js";
 import {
   error,
   getOrigin,
   json,
   methodNotAllowed,
   readJsonBody,
-} from "../lib/http.js";
+} from "../_lib/http.js";
 
 interface CreateBody {
   hostPlayerId?: string;

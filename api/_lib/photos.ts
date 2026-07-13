@@ -1,5 +1,4 @@
 import { put, head } from "@vercel/blob";
-import type { Room } from "./types.js";
 
 const memoryPhotos = new Map<string, Buffer>();
 

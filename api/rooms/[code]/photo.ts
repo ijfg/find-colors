@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getRoomPhoto } from "../../lib/roomService.js";
-import { error, getCodeParam, methodNotAllowed } from "../../lib/http.js";
+import { getRoomPhoto } from "../../_lib/roomService.js";
+import { error, getCodeParam, methodNotAllowed } from "../../_lib/http.js";
 
 export default async function handler(
   req: VercelRequest,

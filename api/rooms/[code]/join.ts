@@ -1,12 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { joinRoom } from "../../lib/roomService.js";
+import { joinRoom } from "../../_lib/roomService.js";
 import {
   error,
   getCodeParam,
   json,
   methodNotAllowed,
   readJsonBody,
-} from "../../lib/http.js";
+} from "../../_lib/http.js";
 
 interface JoinBody {
   playerId?: string;

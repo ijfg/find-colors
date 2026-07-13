@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { loadRoomPublic } from "../lib/roomService.js";
-import { error, getCodeParam, json, methodNotAllowed } from "../lib/http.js";
+import { loadRoomPublic } from "../_lib/roomService.js";
+import { error, getCodeParam, json, methodNotAllowed } from "../_lib/http.js";
 
 export default async function handler(
   req: VercelRequest,

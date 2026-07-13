@@ -64,8 +64,8 @@ function scoreFromDeltaE(de: number): number {
 export function computeResult(
   targetColors: string[],
   userColors: string[],
-  targetPositions: Position[],
-  userPositions: Position[],
+  _targetPositions: Position[],
+  _userPositions: Position[],
 ): { total: number; perCellScores: number[] } {
   const perCellScores = targetColors.map((target, index) => {
     const guess = userColors[index] ?? "#000000";

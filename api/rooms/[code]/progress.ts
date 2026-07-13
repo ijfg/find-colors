@@ -1,12 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { updateRoomProgress } from "../../lib/roomService.js";
+import { updateRoomProgress } from "../../_lib/roomService.js";
 import {
   error,
   getCodeParam,
   json,
   methodNotAllowed,
   readJsonBody,
-} from "../../lib/http.js";
+} from "../../_lib/http.js";
 
 interface ProgressBody {
   playerId?: string;

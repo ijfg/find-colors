@@ -8,8 +8,8 @@ import {
   loadRoomPublic,
   submitToRoom,
   updateRoomProgress,
-} from "./api/lib/roomService.js";
-import type { RoomChallenge } from "./api/lib/types.js";
+} from "./api/_lib/roomService.js";
+import type { RoomChallenge } from "./api/_lib/types.js";
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
