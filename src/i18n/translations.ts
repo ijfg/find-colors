@@ -45,6 +45,48 @@ export const translations = {
       "zh-Hans": "单机游戏",
       "zh-Hant": "單機遊戲",
     },
+    howToPlay: {
+      en: "How to play",
+      "zh-Hans": "怎么玩",
+      "zh-Hant": "怎麼玩",
+    },
+  },
+  howto: {
+    title: {
+      en: "How to play",
+      "zh-Hans": "怎么玩",
+      "zh-Hant": "怎麼玩",
+    },
+    goal: {
+      en: "Find colors in a photo that match the palette.",
+      "zh-Hans": "从照片里找出和色盘一样的颜色。",
+      "zh-Hant": "從照片裡找出和色盤一樣的顏色。",
+    },
+    step1: {
+      en: "Choose how many colors to find (1 / 4 / 9 / 16), then pick a photo — or join a friends room.",
+      "zh-Hans": "先选要找几个颜色（1 / 4 / 9 / 16），再选一张照片；或加入朋友房间。",
+      "zh-Hant": "先選要找幾個顏色（1 / 4 / 9 / 16），再選一張照片；或加入朋友房間。",
+    },
+    step2: {
+      en: "Tap a palette cell, then tap the matching color on the photo.",
+      "zh-Hans": "点色盘格子，再在照片上点你认为匹配的颜色。",
+      "zh-Hant": "點色盤格子，再在照片上點你認為匹配的顏色。",
+    },
+    step3: {
+      en: "Fill every cell and submit — closer matches score higher.",
+      "zh-Hans": "填满后提交看分数；越接近越高。",
+      "zh-Hant": "填滿後提交看分數；越接近越高。",
+    },
+    multiplayer: {
+      en: "With friends, everyone shares the same photo and target colors — closest wins.",
+      "zh-Hans": "和朋友玩时大家用同一张图、同一组目标色，比谁更准。",
+      "zh-Hant": "和朋友玩時大家用同一張圖、同一組目標色，比誰更準。",
+    },
+    gotIt: {
+      en: "Got it",
+      "zh-Hans": "知道了",
+      "zh-Hant": "知道了",
+    },
   },
   difficulty: {
     one: { en: "1 color", "zh-Hans": "1 色", "zh-Hant": "1 色" },

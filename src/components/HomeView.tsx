@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { t, useLocale } from "../i18n";
+import { hasSeenHowTo, HowToPlay, markHowToSeen } from "./HowToPlay";
 
 interface HomeViewProps {
   onSoloStart: () => void;
@@ -10,11 +12,28 @@ const homeBtn =
 
 export function HomeView({ onSoloStart, onRoomPlay }: HomeViewProps) {
   useLocale();
+  const [howToOpen, setHowToOpen] = useState(false);
+
+  useEffect(() => {
+    if (!hasSeenHowTo()) setHowToOpen(true);
+  }, []);
+
+  function closeHowTo() {
+    markHowToSeen();
+    setHowToOpen(false);
+  }
 
   return (
     <section className="home-landing mx-auto flex w-full max-w-sm flex-1 flex-col justify-center pb-[22vh] pt-[10vh] sm:max-w-md">
       <div className="w-full text-center">
         <h2 className="text-title text-[1.75rem] sm:text-[2rem]">{t("appName")}</h2>
+        <button
+          type="button"
+          onClick={() => setHowToOpen(true)}
+          className="mt-2 text-sm text-[var(--color-ink-muted)] underline-offset-2 hover:text-[var(--color-ink-secondary)] hover:underline"
+        >
+          {t("home.howToPlay")}
+        </button>
 
         <div className="mt-8 space-y-2.5 sm:mt-10">
           <button
@@ -35,6 +54,8 @@ export function HomeView({ onSoloStart, onRoomPlay }: HomeViewProps) {
           </button>
         </div>
       </div>
+
+      <HowToPlay open={howToOpen} onClose={closeHowTo} />
     </section>
   );
 }
