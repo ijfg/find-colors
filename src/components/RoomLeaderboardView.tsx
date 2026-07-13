@@ -280,9 +280,25 @@ export function RoomLeaderboardView({
           <button
             type="button"
             onClick={() => setPhotoFocused(true)}
-            className="absolute bottom-3 right-3 z-30 rounded-full border border-stone-200/90 bg-white/95 px-3 py-1.5 text-xs font-medium text-stone-700 shadow-sm backdrop-blur-sm hover:bg-white"
+            className="absolute bottom-3 right-3 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-stone-900/75 text-white shadow-md backdrop-blur-sm transition-colors hover:bg-stone-900/90"
+            aria-label={t("room.expandPhoto")}
+            title={t("room.expandPhoto")}
           >
-            {t("room.expandPhoto")}
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <polyline points="15 3 21 3 21 9" />
+              <polyline points="9 21 3 21 3 15" />
+              <line x1="21" y1="3" x2="14" y2="10" />
+              <line x1="3" y1="21" x2="10" y2="14" />
+            </svg>
           </button>
         )}
 
@@ -290,7 +306,9 @@ export function RoomLeaderboardView({
           <button
             type="button"
             onClick={() => setPhotoFocused(false)}
-            className="absolute bottom-3 left-1/2 z-30 -translate-x-1/2 rounded-full border border-stone-200/90 bg-white/95 px-4 py-2 text-sm font-medium text-stone-800 shadow-md backdrop-blur-sm hover:bg-white"
+            className={`absolute left-1/2 z-30 -translate-x-1/2 rounded-full bg-stone-900/80 px-4 py-2 text-sm font-medium text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-stone-900 ${
+              detailIndex !== null ? "top-3" : "bottom-3"
+            }`}
           >
             {t("room.collapsePhoto")}
           </button>
