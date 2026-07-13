@@ -59,7 +59,16 @@ export function RoomCreateView() {
       });
       navigate(`/r/${result.code}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("room.createFailed"));
+      const msg = e instanceof Error ? e.message : "";
+      if (
+        msg === "image load" ||
+        msg === "canvas" ||
+        msg === "Failed to create canvas"
+      ) {
+        setError(t("home.cantProcess"));
+      } else {
+        setError(msg || t("room.createFailed"));
+      }
     } finally {
       setLoading(false);
     }
