@@ -29,6 +29,8 @@ interface RoomMultiPlayerPhotoProps {
   }>;
   selectedIndex?: number | null;
   onSelectedIndexChange?: (index: number | null) => void;
+  /** Fired when the empty photo background is tapped (no cell selected). */
+  onEmptyPhotoTap?: () => void;
   detailPlayers?: DetailPlayer[];
   fillContainer?: boolean;
 }
@@ -42,6 +44,7 @@ export function RoomMultiPlayerPhoto({
   players,
   selectedIndex = null,
   onSelectedIndexChange,
+  onEmptyPhotoTap,
   detailPlayers = [],
   fillContainer = false,
 }: RoomMultiPlayerPhotoProps) {
@@ -147,7 +150,13 @@ export function RoomMultiPlayerPhoto({
             height={h}
             fill="transparent"
             pointerEvents="all"
-            onPointerUp={() => onSelectedIndexChange?.(null)}
+            onPointerUp={() => {
+              if (selectedIndex !== null) {
+                onSelectedIndexChange?.(null);
+                return;
+              }
+              onEmptyPhotoTap?.();
+            }}
           />
           {Array.from({ length: count }, (_, cellIndex) => {
             const targetPos = targetPositions[cellIndex] ?? { x: 0.5, y: 0.5 };

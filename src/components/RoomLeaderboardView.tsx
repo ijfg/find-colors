@@ -85,17 +85,10 @@ export function RoomLeaderboardView({
     [submittedEntries, playerEmoji],
   );
 
-  const defaultSelectedId = useMemo(() => {
-    if (membership) {
-      const me = submittedEntries.find((e) => e.playerId === membership.playerId);
-      if (me) return me.playerId;
-    }
-    return submittedEntries[0]?.playerId ?? null;
-  }, [membership, submittedEntries]);
-
   const [photoUrl, setPhotoUrl] = useState<string | null>(initialPhotoUrl);
-  const [selectedId, setSelectedId] = useState<string | null>(defaultSelectedId);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailIndex, setDetailIndex] = useState<number | null>(null);
+  const [photoFocused, setPhotoFocused] = useState(false);
 
   useEffect(() => {
     if (initialPhotoUrl) {
@@ -121,11 +114,10 @@ export function RoomLeaderboardView({
   }, [room.code, initialPhotoUrl]);
 
   useEffect(() => {
-    if (selectedId && submittedEntries.some((e) => e.playerId === selectedId)) {
-      return;
+    if (selectedId && !submittedEntries.some((e) => e.playerId === selectedId)) {
+      setSelectedId(null);
     }
-    setSelectedId(defaultSelectedId);
-  }, [selectedId, submittedEntries, defaultSelectedId]);
+  }, [selectedId, submittedEntries]);
 
   useEffect(() => {
     setDetailIndex(null);
@@ -171,7 +163,9 @@ export function RoomLeaderboardView({
               type="button"
               disabled={!canSelect}
               onClick={() => {
-                if (canSelect) setSelectedId(entry.playerId);
+                if (!canSelect) return;
+                setSelectedId(active ? null : entry.playerId);
+                if (!active) setPhotoFocused(false);
               }}
               className={`flex w-full items-start rounded-xl text-left transition-all ${
                 sideBySide ? "gap-2 px-2.5 py-2.5" : "gap-3 px-3 py-3"
@@ -256,10 +250,12 @@ export function RoomLeaderboardView({
       }`}
     >
       <div
-        className={`relative flex min-w-0 flex-col bg-stone-900/5 ${
-          sideBySide
-            ? "min-h-0 flex-1"
-            : "h-[36vh] shrink-0 md:h-auto md:min-h-0 md:flex-1"
+        className={`relative flex min-w-0 flex-col bg-stone-900/5 transition-[flex-basis,height] duration-300 ease-out ${
+          photoFocused
+            ? "z-20 min-h-0 flex-1"
+            : sideBySide
+              ? "min-h-0 flex-1"
+              : "h-[36vh] shrink-0 md:h-auto md:min-h-0 md:flex-1"
         }`}
       >
         {photoUrl && photoPlayers.length > 0 ? (
@@ -270,6 +266,7 @@ export function RoomLeaderboardView({
             players={photoPlayers}
             selectedIndex={detailIndex}
             onSelectedIndexChange={setDetailIndex}
+            onEmptyPhotoTap={() => setPhotoFocused((v) => !v)}
             detailPlayers={detailPlayers}
             fillContainer
           />
@@ -278,14 +275,37 @@ export function RoomLeaderboardView({
             {t("room.loadingRoom")}
           </p>
         )}
+
+        {!photoFocused && photoPlayers.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setPhotoFocused(true)}
+            className="absolute bottom-3 right-3 z-30 rounded-full border border-stone-200/90 bg-white/95 px-3 py-1.5 text-xs font-medium text-stone-700 shadow-sm backdrop-blur-sm hover:bg-white"
+          >
+            {t("room.expandPhoto")}
+          </button>
+        )}
+
+        {photoFocused && (
+          <button
+            type="button"
+            onClick={() => setPhotoFocused(false)}
+            className="absolute bottom-3 left-1/2 z-30 -translate-x-1/2 rounded-full border border-stone-200/90 bg-white/95 px-4 py-2 text-sm font-medium text-stone-800 shadow-md backdrop-blur-sm hover:bg-white"
+          >
+            {t("room.collapsePhoto")}
+          </button>
+        )}
       </div>
 
       <aside
-        className={`flex min-h-0 min-w-0 flex-col ${
-          sideBySide
-            ? "w-[min(48%,20rem)] shrink-0 overflow-hidden"
-            : "flex-1 md:w-[clamp(22rem,38vw,32rem)] md:shrink-0"
+        className={`flex min-h-0 min-w-0 flex-col bg-[#f7f5f2] transition-all duration-300 ease-out ${
+          photoFocused
+            ? "pointer-events-none absolute inset-x-0 bottom-0 z-10 max-h-[42%] translate-y-[108%] opacity-0 md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[clamp(22rem,38vw,32rem)] md:translate-x-[108%] md:translate-y-0"
+            : sideBySide
+              ? "relative z-10 w-[min(48%,20rem)] shrink-0 overflow-hidden"
+              : "relative z-10 flex-1 md:w-[clamp(22rem,38vw,32rem)] md:shrink-0"
         }`}
+        aria-hidden={photoFocused}
       >
         <div
           className={`sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-stone-200/80 bg-[#f7f5f2]/95 backdrop-blur-sm ${
@@ -320,14 +340,21 @@ export function RoomLeaderboardView({
             sideBySide ? "px-3 py-2" : "px-4 py-3"
           }`}
         >
-          {/* Phone landscape: stack score + rankings so the narrow aside doesn't clip. */}
-          <div
-            className={`grid items-start gap-3 ${
-              sideBySide ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"
-            }`}
-          >
+          <div className="space-y-4">
+            <div className="min-w-0">
+              <p className="text-caption mb-2 text-[10px] font-medium uppercase tracking-wide">
+                {t("room.rankings")}
+              </p>
+              {rankingList}
+              {!selectedResult && (
+                <p className="text-caption mt-3 text-center text-xs">
+                  {t("room.tapPlayerForScore")}
+                </p>
+              )}
+            </div>
+
             {selectedResult && selectedEntry && (
-              <div className="min-w-0">
+              <div className="min-w-0 border-t border-stone-200/80 pt-4">
                 <p className="text-caption mb-2 text-[10px] font-medium uppercase tracking-wide">
                   {t("score.total")}
                 </p>
@@ -345,17 +372,13 @@ export function RoomLeaderboardView({
                   playerName={selectedEntry.displayName}
                   playerEmoji={selectedEmoji}
                   selectedDetailIndex={detailIndex}
-                  onSelectDetailIndex={setDetailIndex}
+                  onSelectDetailIndex={(index) => {
+                    setDetailIndex(index);
+                    if (index !== null) setPhotoFocused(true);
+                  }}
                 />
               </div>
             )}
-
-            <div className={`min-w-0 ${selectedResult && !sideBySide ? "md:col-span-1" : ""}`}>
-              <p className="text-caption mb-2 text-[10px] font-medium uppercase tracking-wide">
-                {t("room.rankings")}
-              </p>
-              {rankingList}
-            </div>
           </div>
 
           {detailIndex === null && submittedEntries.length > 0 && (

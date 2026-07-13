@@ -430,6 +430,21 @@ export const translations = {
       "zh-Hans": "点击照片上的号码，查看所有人这一格的取色对比",
       "zh-Hant": "點擊照片上的號碼，查看所有人這一格的取色對比",
     },
+    expandPhoto: {
+      en: "Enlarge photo",
+      "zh-Hans": "放大照片",
+      "zh-Hant": "放大照片",
+    },
+    collapsePhoto: {
+      en: "Show results",
+      "zh-Hans": "查看成果发表",
+      "zh-Hant": "查看成果發表",
+    },
+    tapPlayerForScore: {
+      en: "Tap a player to see their score breakdown",
+      "zh-Hans": "点击一位玩家，查看总分与取色对比",
+      "zh-Hant": "點擊一位玩家，查看總分與取色對比",
+    },
   },
 } as const;
 

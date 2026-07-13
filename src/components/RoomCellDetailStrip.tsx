@@ -5,6 +5,8 @@ import { t, useLocale } from "../i18n";
 import { ScoreDenom } from "./ScoreResult";
 import {
   computePhotoCanvasLayout,
+  drawCenteredCrop,
+  drawCropCrosshair,
   drawPhotoToCanvas,
 } from "../utils/photoCanvas";
 
@@ -29,7 +31,6 @@ interface RoomCellDetailStripProps {
   layout?: DetailStripLayout;
 }
 
-const CROP_RADIUS = 22;
 const TILE = 52;
 
 function CropTile({
@@ -59,27 +60,15 @@ function CropTile({
 
       const cx = position.x * layout.bufferWidth;
       const cy = position.y * layout.bufferHeight;
-      const half = CROP_RADIUS;
-      const sx = Math.max(0, Math.min(layout.bufferWidth - 1, cx - half));
-      const sy = Math.max(0, Math.min(layout.bufferHeight - 1, cy - half));
-      const sw = Math.min(half * 2, layout.bufferWidth - sx);
-      const sh = Math.min(half * 2, layout.bufferHeight - sy);
+      // Scale radius with buffer so zoom stays similar across photos.
+      const radius = Math.max(
+        14,
+        Math.round(Math.min(layout.bufferWidth, layout.bufferHeight) * 0.07),
+      );
 
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext("2d");
+      const ctx = drawCenteredCrop(canvas, off, cx, cy, radius, size);
       if (!ctx) return;
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(off, sx, sy, sw, sh, 0, 0, size, size);
-
-      const center = size / 2;
-      ctx.fillStyle = hex;
-      ctx.strokeStyle = "#1c1917";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(center, center, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.stroke();
+      drawCropCrosshair(ctx, size, hex, "#1c1917");
     };
     img.src = photoDataUrl;
     return () => {

@@ -5,6 +5,8 @@ import { t, useLocale } from "../i18n";
 import { hexToRgb } from "../utils/colorExtract";
 import {
   computePhotoCanvasLayout,
+  drawCenteredCrop,
+  drawCropCrosshair,
   drawPhotoToCanvas,
 } from "../utils/photoCanvas";
 
@@ -143,43 +145,14 @@ function drawCropCanvas(
   overlayStroke: string,
   displaySize = CROP_DISPLAY,
 ) {
-  const size = displaySize;
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
+  const radius = Math.max(
+    14,
+    Math.round(Math.min(source.width, source.height) * 0.035),
+    CROP_RADIUS,
+  );
+  const ctx = drawCenteredCrop(canvas, source, cx, cy, radius, displaySize);
   if (!ctx) return;
-
-  const half = CROP_RADIUS;
-  const sx = Math.max(0, Math.min(source.width - 1, cx - half));
-  const sy = Math.max(0, Math.min(source.height - 1, cy - half));
-  const sw = Math.min(half * 2, source.width - sx);
-  const sh = Math.min(half * 2, source.height - sy);
-
-  // Keep crop square even near photo edges so the two cells stay even.
-  const side = Math.min(sw, sh);
-  ctx.imageSmoothingEnabled = false;
-  ctx.clearRect(0, 0, size, size);
-  ctx.drawImage(source, sx, sy, side, side, 0, 0, size, size);
-
-  const center = size / 2;
-  const cross = Math.max(6, Math.round(size * 0.09));
-
-  ctx.strokeStyle = overlayStroke;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(center - cross, center);
-  ctx.lineTo(center + cross, center);
-  ctx.moveTo(center, center - cross);
-  ctx.lineTo(center, center + cross);
-  ctx.stroke();
-
-  ctx.fillStyle = hex;
-  ctx.strokeStyle = overlayStroke;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(center, center, Math.max(3, Math.round(size * 0.04)), 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
+  drawCropCrosshair(ctx, displaySize, hex, overlayStroke);
 }
 
 interface MarkerPairProps {
