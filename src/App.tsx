@@ -91,6 +91,11 @@ export default function App() {
     isSoloRoute && soloView !== "records" && soloView !== "game";
   const transparentHeader =
     isSoloRoute && (soloView === "home" || soloView === "soloSetup");
+  const roomLanding =
+    route.kind === "roomHub" ||
+    route.kind === "roomCreate" ||
+    route.kind === "roomJoin";
+  const centeredShell = transparentHeader || roomLanding;
 
   useEffect(() => {
     document.title = t("appName");
@@ -357,7 +362,7 @@ export default function App() {
         className={`mx-auto ${
           fullScreenMain
             ? "p-0"
-            : transparentHeader
+            : centeredShell
               ? "flex w-full flex-1 flex-col px-5 sm:px-6"
               : isSoloRoute && soloView === "game"
                 ? "flex min-h-0 flex-1 w-full flex-col overflow-hidden p-0"
@@ -365,7 +370,7 @@ export default function App() {
         } ${
           isSoloRoute && soloView === "game"
             ? "max-w-none"
-            : transparentHeader
+            : centeredShell
               ? "max-w-5xl"
               : "max-w-5xl"
         }`}
