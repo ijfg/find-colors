@@ -248,8 +248,8 @@ export function PhotoCanvasPicker({
   const pinchRef = useRef<{
     initialDistance: number;
     initialZoom: number;
-    anchorCssX: number;
-    anchorCssY: number;
+    lastMidClientX: number;
+    lastMidClientY: number;
   } | null>(null);
   const pinchEndingRef = useRef(false);
 
@@ -399,6 +399,7 @@ export function PhotoCanvasPicker({
       if (clamped === 1) {
         setZoom(1);
         setPan({ x: 0, y: 0 });
+        viewRef.current = { zoom: 1, pan: { x: 0, y: 0 } };
         return;
       }
 
@@ -414,6 +415,7 @@ export function PhotoCanvasPicker({
       );
       setZoom(clamped);
       setPan(nextPan);
+      viewRef.current = { zoom: clamped, pan: nextPan };
     },
     [displaySize],
   );
@@ -485,12 +487,19 @@ export function PhotoCanvasPicker({
     }
   }
 
-  function pinchMidpointCss(): { x: number; y: number } | null {
+  function pinchMidpointClient(): { x: number; y: number } | null {
     const pts = [...pointersRef.current.values()];
     if (pts.length < 2) return null;
-    const midX = (pts[0].clientX + pts[1].clientX) / 2;
-    const midY = (pts[0].clientY + pts[1].clientY) / 2;
-    const coords = clientToCoords(midX, midY);
+    return {
+      x: (pts[0].clientX + pts[1].clientX) / 2,
+      y: (pts[0].clientY + pts[1].clientY) / 2,
+    };
+  }
+
+  function pinchMidpointCss(): { x: number; y: number } | null {
+    const mid = pinchMidpointClient();
+    if (!mid) return null;
+    const coords = clientToCoords(mid.x, mid.y);
     if (!coords) return null;
     return { x: coords.cssX, y: coords.cssY };
   }
@@ -517,16 +526,17 @@ export function PhotoCanvasPicker({
     if (pointersRef.current.size >= 2) {
       pinchEndingRef.current = true;
       const dist = pinchDistance();
-      const midCss = pinchMidpointCss();
-      if (dist && midCss) {
+      const mid = pinchMidpointClient();
+      if (dist && mid) {
         pinchRef.current = {
           initialDistance: dist,
           initialZoom: viewRef.current.zoom,
-          anchorCssX: midCss.x,
-          anchorCssY: midCss.y,
+          lastMidClientX: mid.x,
+          lastMidClientY: mid.y,
         };
         dragRef.current = null;
         setHover(null);
+        setPanning(false);
       }
       return;
     }
@@ -556,24 +566,44 @@ export function PhotoCanvasPicker({
       e.preventDefault();
       pinchEndingRef.current = true;
       setHover(null);
-      setPanning(false);
 
       const dist = pinchDistance();
+      const mid = pinchMidpointClient();
       const midCss = pinchMidpointCss();
-      if (!dist || !midCss) return;
+      if (!dist || !mid || !midCss) return;
 
       if (!pinchRef.current) {
         pinchRef.current = {
           initialDistance: dist,
           initialZoom: viewRef.current.zoom,
-          anchorCssX: midCss.x,
-          anchorCssY: midCss.y,
+          lastMidClientX: mid.x,
+          lastMidClientY: mid.y,
         };
       }
 
       const pr = pinchRef.current;
-      const ratio = dist / pr.initialDistance;
-      applyZoomAt(pr.initialZoom * ratio, midCss.x, midCss.y);
+      const dx = mid.x - pr.lastMidClientX;
+      const dy = mid.y - pr.lastMidClientY;
+      pr.lastMidClientX = mid.x;
+      pr.lastMidClientY = mid.y;
+
+      // Pinch distance → zoom around current midpoint
+      applyZoomAt(pr.initialZoom * (dist / pr.initialDistance), midCss.x, midCss.y);
+
+      // Two-finger midpoint move → pan (works alone or with pinch)
+      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+        setPanning(true);
+        const { zoom: z, pan: p } = viewRef.current;
+        const { w: vw, h: vh } = displaySize;
+        const nextPan = clampPan(
+          z,
+          { x: p.x + dx, y: p.y + dy },
+          vw,
+          vh,
+        );
+        setPan(nextPan);
+        viewRef.current = { zoom: z, pan: nextPan };
+      }
       return;
     }
 
@@ -584,8 +614,8 @@ export function PhotoCanvasPicker({
       const { zoom: z } = viewRef.current;
       const { w: vw, h: vh } = displaySize;
 
-      if (z > 1) {
-        // Zoomed: drag pans the photo; loupe only for taps.
+      // Desktop + zoomed: one-button drag pans (hover already shows loupe).
+      if (z > 1 && !coarsePointer) {
         if (
           !drag.moved &&
           (Math.abs(dx) > PAN_START_THRESHOLD ||
@@ -614,7 +644,7 @@ export function PhotoCanvasPicker({
         return;
       }
 
-      // zoom === 1: loupe scrub; pick on release
+      // Touch (any zoom) or desktop at 1x: loupe scrub; pick on release
       if (
         !drag.moved &&
         (Math.abs(dx) > PAN_START_THRESHOLD ||
@@ -657,13 +687,13 @@ export function PhotoCanvasPicker({
       setPanning(false);
 
       if (!wasPinchEnding && enabled) {
-        if (wasZoomed) {
-          // Tap only — panning must not pick
+        if (wasZoomed && !coarsePointer) {
+          // Desktop zoomed: pan must not pick; tap still picks
           if (!moved) {
             pickFromClient(e.clientX, e.clientY);
           }
         } else {
-          // zoom === 1: pick at release (loupe scrub or tap)
+          // Touch or 1x: pick at release (loupe scrub or tap)
           pickFromClient(e.clientX, e.clientY);
         }
       }
@@ -736,7 +766,7 @@ export function PhotoCanvasPicker({
 
   const cursorClass = !enabled
     ? "cursor-default"
-    : zoom > 1
+    : zoom > 1 && !coarsePointer
       ? panning
         ? "cursor-grabbing"
         : "cursor-grab"
@@ -938,13 +968,24 @@ export function PhotoCanvasPicker({
         <div
           className={
             overlayControls
-              ? "pointer-events-auto absolute bottom-1.5 left-1/2 z-20 -translate-x-1/2"
+              ? "pointer-events-auto absolute bottom-1.5 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1"
               : fillContainer
-                ? "flex shrink-0 justify-center py-3"
-                : "flex w-full max-w-full shrink-0 flex-wrap items-center justify-center gap-1 px-1 py-1 text-xs text-[var(--color-ink-muted)]"
+                ? "flex shrink-0 flex-col items-center justify-center gap-1 py-3"
+                : "flex w-full max-w-full shrink-0 flex-col items-center gap-1 px-1 py-1 text-xs text-[var(--color-ink-muted)]"
           }
           data-preserve-selection
         >
+          {zoom > 1 && coarsePointer && (
+            <span
+              className={`order-first select-none whitespace-nowrap text-center text-[10px] leading-none text-[var(--color-ink-muted)] ${
+                overlayControls
+                  ? "rounded-full bg-black/45 px-2 py-1 text-white/90 backdrop-blur-[2px]"
+                  : ""
+              }`}
+            >
+              {t("picker.hintZoomedTouch")}
+            </span>
+          )}
           <div
             className={`inline-flex items-center gap-1 text-[var(--color-ink-muted)] ${
               overlayControls
@@ -998,8 +1039,8 @@ export function PhotoCanvasPicker({
             {t("picker.reset")}
           </button>
           </div>
-          {!overlayControls && !fillContainer && (
-            <span className="w-full text-center text-[var(--color-ink-muted)] sm:w-auto">
+          {!overlayControls && !fillContainer && zoom <= 1 && (
+            <span className="w-full select-none text-center text-[var(--color-ink-muted)] sm:w-auto">
               {coarsePointer
                 ? t("picker.hintTouch")
                 : t("picker.hintMouse")}

@@ -112,14 +112,19 @@ export const translations = {
     zoomOut: { en: "Zoom out", "zh-Hans": "缩小", "zh-Hant": "縮小" },
     reset: { en: "Reset", "zh-Hans": "重置", "zh-Hant": "重置" },
     hintTouch: {
-      en: "Pinch to zoom · crosshair = pick point · release to confirm",
-      "zh-Hans": "双指缩放 · 准心=取色点 · 松手确认",
-      "zh-Hant": "雙指縮放 · 準心=取色點 · 鬆手確認",
+      en: "Drag to preview · release to pick · two fingers to zoom/pan",
+      "zh-Hans": "单指拖动看色 · 松手取色 · 双指缩放/平移",
+      "zh-Hant": "單指拖動看色 · 鬆手取色 · 雙指縮放/平移",
+    },
+    hintZoomedTouch: {
+      en: "Drag to pick · two fingers to pan",
+      "zh-Hans": "单指取色 · 双指平移",
+      "zh-Hant": "單指取色 · 雙指平移",
     },
     hintMouse: {
-      en: "Scroll to zoom · drag to view · click to pick",
-      "zh-Hans": "滚轮缩放 · 拖动查看颜色 · 点击取色",
-      "zh-Hant": "滾輪縮放 · 拖動查看顏色 · 點擊取色",
+      en: "Scroll to zoom · drag to pan when zoomed · click to pick",
+      "zh-Hans": "滚轮缩放 · 放大后拖动平移 · 点击取色",
+      "zh-Hant": "滾輪縮放 · 放大後拖動平移 · 點擊取色",
     },
   },
   score: {

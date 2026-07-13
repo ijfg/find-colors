@@ -448,7 +448,7 @@ export function ColorGuessingGame({
     setSaveError(null);
   }
 
-  function renderPickingHint(className = "text-center text-[11px] leading-snug text-[var(--color-ink-muted)]") {
+  function renderPickingHint(className = "select-none text-center text-[11px] leading-snug text-[var(--color-ink-muted)]") {
     if (submitted) return null;
 
     return (
@@ -465,7 +465,7 @@ export function ColorGuessingGame({
               e.stopPropagation();
               handleClearCell(activeIndex);
             }}
-            className="ml-2 text-[var(--color-ink-muted)] underline"
+            className="ml-2 select-none text-[var(--color-ink-muted)] underline"
           >
             {t("game.clearCell")}
           </button>
@@ -616,7 +616,7 @@ export function ColorGuessingGame({
                   allowEmpty
                   selectedTone="amber"
                 />
-                {renderPickingHint("text-center text-xs leading-snug text-[var(--color-ink-muted)]")}
+                {renderPickingHint("select-none text-center text-xs leading-snug text-[var(--color-ink-muted)]")}
               </div>
 
               {roomStatus && (
@@ -676,7 +676,7 @@ export function ColorGuessingGame({
             selectedIndex={activeIndex}
             onSelectCell={handleSelectTarget}
           />
-          {!mobileLandscapeLayout && renderPickingHint("mt-1.5 text-[11px] text-[var(--color-ink-muted)]")}
+          {!mobileLandscapeLayout && renderPickingHint("mt-1.5 select-none text-[11px] text-[var(--color-ink-muted)]")}
         </div>
 
         <div
