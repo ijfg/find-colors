@@ -2,7 +2,7 @@ import { t, useLocale } from "../i18n";
 import { navigate } from "../lib/routing";
 
 const actionBtn =
-  "min-h-11 w-full rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-bg)]";
+  "min-h-11 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-bg)]";
 
 export function RoomHubView() {
   useLocale();
@@ -30,7 +30,7 @@ export function RoomHubView() {
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="text-sm text-stone-500 hover:text-stone-700"
+          className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-secondary)]"
         >
           ← {t("room.backHome")}
         </button>

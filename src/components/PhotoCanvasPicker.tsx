@@ -778,7 +778,7 @@ export function PhotoCanvasPicker({
         >
         <div
           ref={viewportRef}
-          className={`absolute inset-0 touch-none overflow-hidden ring-1 ring-stone-200 ${
+          className={`absolute inset-0 touch-none overflow-hidden ring-1 ring-[var(--color-border)] ${
             fillContainer ? "rounded-none" : "rounded-xl"
           }`}
           data-preserve-selection
@@ -913,7 +913,7 @@ export function PhotoCanvasPicker({
             </div>
 
             <div
-              className="pointer-events-none absolute z-40 flex items-center gap-1 whitespace-nowrap rounded-full bg-white/95 px-1.5 py-0.5 text-[10px] font-medium leading-none text-stone-700 shadow ring-1 ring-stone-200"
+              className="pointer-events-none absolute z-40 flex items-center gap-1 whitespace-nowrap rounded-full bg-[var(--color-overlay)] px-1.5 py-0.5 text-[10px] font-medium leading-none text-[var(--color-ink-secondary)] shadow ring-1 ring-[var(--color-border)]"
               style={{
                 left: hexLabel.hexLeft,
                 top: hexLabel.hexTop,
@@ -924,7 +924,7 @@ export function PhotoCanvasPicker({
               }}
             >
               <span
-                className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm ring-1 ring-stone-300"
+                className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm ring-1 ring-[var(--color-border-strong)]"
                 style={{ backgroundColor: hover.hex }}
               />
               <span className="font-mono uppercase">{hover.hex}</span>
@@ -941,16 +941,16 @@ export function PhotoCanvasPicker({
               ? "pointer-events-auto absolute bottom-1.5 left-1/2 z-20 -translate-x-1/2"
               : fillContainer
                 ? "flex shrink-0 justify-center py-3"
-                : "flex w-full max-w-full shrink-0 flex-wrap items-center justify-center gap-1 px-1 py-1 text-xs text-stone-500"
+                : "flex w-full max-w-full shrink-0 flex-wrap items-center justify-center gap-1 px-1 py-1 text-xs text-[var(--color-ink-muted)]"
           }
           data-preserve-selection
         >
           <div
-            className={`inline-flex items-center gap-1 text-stone-500 ${
+            className={`inline-flex items-center gap-1 text-[var(--color-ink-muted)] ${
               overlayControls
-                ? "gap-0.5 rounded-lg border border-white/45 bg-white/50 px-1 py-0.5 shadow-sm backdrop-blur-[2px]"
+                ? "gap-0.5 rounded-lg border border-white/45 bg-[var(--color-surface)]/50 px-1 py-0.5 shadow-sm backdrop-blur-[2px]"
                 : fillContainer
-                  ? "rounded-lg border border-stone-200/70 bg-white/95 px-1.5 py-0.5"
+                  ? "rounded-lg border border-[var(--color-border)]/70 bg-[var(--color-overlay)] px-1.5 py-0.5"
                   : ""
             }`}
           >
@@ -958,7 +958,7 @@ export function PhotoCanvasPicker({
             type="button"
             onClick={zoomOut}
             disabled={zoom <= MIN_ZOOM}
-            className={`flex items-center justify-center rounded-md bg-white text-sm ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
+            className={`flex items-center justify-center rounded-md bg-[var(--color-surface)] text-sm ring-1 ring-[var(--color-border-strong)] hover:bg-[var(--color-bg)] disabled:opacity-40 ${
               overlayControls ? "h-7 w-7" : fillContainer ? "h-9 w-9" : "min-h-11 min-w-11 text-base"
             }`}
             aria-label={t("picker.zoomOut")}
@@ -976,7 +976,7 @@ export function PhotoCanvasPicker({
             type="button"
             onClick={zoomIn}
             disabled={zoom >= MAX_ZOOM}
-            className={`flex items-center justify-center rounded-md bg-white text-sm ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
+            className={`flex items-center justify-center rounded-md bg-[var(--color-surface)] text-sm ring-1 ring-[var(--color-border-strong)] hover:bg-[var(--color-bg)] disabled:opacity-40 ${
               overlayControls ? "h-7 w-7" : fillContainer ? "h-9 w-9" : "min-h-11 min-w-11 text-base"
             }`}
             aria-label={t("picker.zoomIn")}
@@ -987,7 +987,7 @@ export function PhotoCanvasPicker({
             type="button"
             onClick={resetZoom}
             disabled={zoom === 1 && pan.x === 0 && pan.y === 0}
-            className={`rounded-md bg-white text-sm ring-1 ring-stone-300 hover:bg-stone-50 disabled:opacity-40 ${
+            className={`rounded-md bg-[var(--color-surface)] text-sm ring-1 ring-[var(--color-border-strong)] hover:bg-[var(--color-bg)] disabled:opacity-40 ${
               overlayControls
                 ? "h-7 px-1.5"
                 : fillContainer
@@ -999,7 +999,7 @@ export function PhotoCanvasPicker({
           </button>
           </div>
           {!overlayControls && !fillContainer && (
-            <span className="w-full text-center text-stone-400 sm:w-auto">
+            <span className="w-full text-center text-[var(--color-ink-muted)] sm:w-auto">
               {coarsePointer
                 ? t("picker.hintTouch")
                 : t("picker.hintMouse")}

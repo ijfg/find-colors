@@ -4,6 +4,7 @@ import { t, useLocale } from "../i18n";
 import { ColorGrid } from "./ColorGrid";
 import { MiniPalette } from "./MiniPalette";
 import { PhotoCanvasWithMarkers } from "./PhotoCanvasWithMarkers";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 interface RecordsViewProps {
   records: GameRecord[];
@@ -30,7 +31,7 @@ function scoreTone(score: number): string {
   if (score >= 90) return "text-emerald-600";
   if (score >= 75) return "text-teal-600";
   if (score >= 60) return "text-amber-600";
-  return "text-stone-700";
+  return "text-[var(--color-ink-secondary)]";
 }
 
 export function RecordsView({
@@ -70,15 +71,16 @@ export function RecordsView({
         <button
           type="button"
           onClick={onBack}
-          className="text-sm text-stone-600 hover:text-stone-800"
+          className="text-sm text-[var(--color-ink-secondary)] hover:text-[var(--color-ink)]"
         >
           ← {t("records.back")}
         </button>
         <div className="flex items-center gap-3">
+          <ThemeSwitcher />
           <button
             type="button"
             onClick={() => setSortByScore((v) => !v)}
-            className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-stone-600 ring-1 ring-stone-300 hover:bg-stone-50"
+            className="rounded-lg bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-[var(--color-ink-secondary)] ring-1 ring-[var(--color-border-strong)] hover:bg-[var(--color-bg)]"
           >
             {sortByScore ? t("records.sortByTime") : t("records.sortByScore")}
           </button>
@@ -86,7 +88,7 @@ export function RecordsView({
             <button
               type="button"
               onClick={handleClearAll}
-              className="rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-rose-500 ring-1 ring-rose-200 hover:bg-rose-50"
+              className="rounded-lg bg-[var(--color-surface)] px-3 py-1.5 text-xs font-medium text-rose-500 ring-1 ring-rose-200 hover:bg-rose-50"
             >
               {t("records.clearAll")}
             </button>
@@ -95,7 +97,7 @@ export function RecordsView({
       </div>
 
       {records.length === 0 ? (
-        <p className="py-12 text-center text-stone-400">{t("records.empty")}</p>
+        <p className="py-12 text-center text-[var(--color-ink-muted)]">{t("records.empty")}</p>
       ) : (
         <div className="mx-auto max-w-2xl space-y-3">
           {sorted.map((rec) => {
@@ -105,7 +107,7 @@ export function RecordsView({
             return (
               <div
                 key={rec.id}
-                className="overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-stone-200"
+                className="overflow-hidden rounded-2xl bg-[var(--color-surface)]/80 shadow-sm ring-1 ring-[var(--color-border)]"
               >
                 <div
                   role="button"
@@ -119,12 +121,12 @@ export function RecordsView({
                       setExpandedId(expanded ? null : rec.id);
                     }
                   }}
-                  className="flex w-full cursor-pointer items-center gap-4 p-4 text-left hover:bg-stone-50/80"
+                  className="flex w-full cursor-pointer items-center gap-4 p-4 text-left hover:bg-[var(--color-bg)]"
                 >
                   <img
                     src={rec.thumbnailDataUrl}
                     alt=""
-                    className="h-[4.5rem] w-[4.5rem] shrink-0 rounded-lg object-cover ring-1 ring-stone-200"
+                    className="h-[4.5rem] w-[4.5rem] shrink-0 rounded-lg object-cover ring-1 ring-[var(--color-border)]"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-2">
@@ -141,13 +143,13 @@ export function RecordsView({
                       className="mt-1.5"
                     />
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500">
+                      <span className="rounded-full bg-[var(--color-surface-muted)] px-2 py-0.5 text-xs text-[var(--color-ink-muted)]">
                         {difficultyLabel(rec.difficulty)}
                       </span>
                       {rec.mode === "room" &&
                         rec.roomRank != null &&
                         rec.roomPlayerCount != null && (
-                          <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500">
+                          <span className="rounded-full bg-[var(--color-surface-muted)] px-2 py-0.5 text-xs text-[var(--color-ink-muted)]">
                             {t("records.roomRank", {
                               rank: String(rec.roomRank),
                               total: String(rec.roomPlayerCount),
@@ -155,14 +157,14 @@ export function RecordsView({
                           </span>
                         )}
                     </div>
-                    <p className="mt-1 text-xs text-stone-400">
+                    <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
                       {new Date(rec.createdAt).toLocaleString(dateLocale)}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={(e) => handleDelete(rec.id, e)}
-                    className="shrink-0 rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-rose-500"
+                    className="shrink-0 rounded-lg p-2 text-[var(--color-ink-muted)] hover:bg-[var(--color-bg)] hover:text-rose-500"
                     aria-label={t("records.deleteAria")}
                   >
                     <svg
@@ -180,7 +182,7 @@ export function RecordsView({
                 </div>
 
                 {expanded && (
-                  <div className="border-t border-stone-100 p-3">
+                  <div className="border-t border-[var(--color-border)] p-3">
                     <div className="space-y-3">
                       <PhotoCanvasWithMarkers
                         photoDataUrl={rec.thumbnailDataUrl}
@@ -217,14 +219,14 @@ export function RecordsView({
                         {rec.perCellScores.map((score, i) => (
                           <div
                             key={i}
-                            className="rounded-lg bg-stone-50 p-2 text-center text-xs ring-1 ring-stone-200"
+                            className="rounded-lg bg-[var(--color-surface-muted)] p-2 text-center text-xs ring-1 ring-[var(--color-border)]"
                           >
-                            <span className="text-stone-400">
+                            <span className="text-[var(--color-ink-muted)]">
                               {t("records.cellLabel", { n: i + 1 })}
                             </span>
-                            <span className="ml-2 font-mono font-medium text-stone-700">
+                            <span className="ml-2 font-mono font-medium text-[var(--color-ink-secondary)]">
                               {score}
-                              <span className="font-normal text-stone-400">/100</span>
+                              <span className="font-normal text-[var(--color-ink-muted)]">/100</span>
                             </span>
                           </div>
                         ))}

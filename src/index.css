@@ -13,6 +13,29 @@
   --color-border: #e3dfd8;
   --color-border-strong: #cfc9c0;
   --color-bg: #f3f1ec;
+  --color-shell: #f7f5f2;
+  --color-surface-muted: #f5f3ef;
+  --color-overlay: rgba(255, 255, 255, 0.95);
+  --color-button: #2a2826;
+  --color-button-hover: #1f1d1b;
+  --color-button-text: #ffffff;
+}
+
+html.dark {
+  --color-ink: #f0ebe4;
+  --color-ink-secondary: #c4bdb4;
+  --color-ink-muted: #8a8278;
+  --color-surface: #2a2724;
+  --color-border: #3f3a35;
+  --color-border-strong: #5a534c;
+  --color-bg: #1c1a18;
+  --color-shell: #1c1a18;
+  --color-surface-muted: #23201d;
+  --color-overlay: rgba(42, 39, 36, 0.95);
+  --color-button: #f0ebe4;
+  --color-button-hover: #e4ddd4;
+  --color-button-text: #1c1a18;
+  color-scheme: dark;
 }
 
 @utility text-title {

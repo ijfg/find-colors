@@ -82,7 +82,7 @@ export function RoomCreateView() {
           value={hostName}
           onChange={(e) => setHostName(e.target.value)}
           maxLength={24}
-          className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"
         />
       </label>
 
@@ -97,7 +97,7 @@ export function RoomCreateView() {
           onBlur={() => {
             if (!deadlineInput.trim()) setDeadlineInput("60");
           }}
-          className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm tabular-nums"
+          className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm tabular-nums"
         />
       </label>
 
@@ -110,7 +110,7 @@ export function RoomCreateView() {
       <button
         type="button"
         onClick={() => navigate("/room")}
-        className="block w-full text-center text-sm text-stone-500 hover:text-stone-700"
+        className="block w-full text-center text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-secondary)]"
       >
         ← {t("room.backHome")}
       </button>

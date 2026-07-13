@@ -1,42 +1,31 @@
-import { setLocale, useLocale, type Locale } from "../i18n";
+import { setLocale, t, useLocale, type Locale } from "../i18n";
+import { HEADER_CHIP_CLASS } from "./ThemeSwitcher";
 
-const options: { value: Locale; label: string }[] = [
+const CYCLE: { value: Locale; label: string }[] = [
   { value: "en", label: "EN" },
   { value: "zh-Hans", label: "简中" },
   { value: "zh-Hant", label: "繁中" },
 ];
 
-const SEP = "·";
-
 export function LanguageSwitcher() {
   const locale = useLocale();
+  const index = Math.max(
+    0,
+    CYCLE.findIndex((o) => o.value === locale),
+  );
+  const current = CYCLE[index]!;
+  const next = CYCLE[(index + 1) % CYCLE.length]!;
+  const label = `${t("language.label")}: ${current.label}`;
 
   return (
-    <div
-      className="flex min-h-11 items-center text-xs text-stone-500"
-      role="group"
-      aria-label="Language"
+    <button
+      type="button"
+      onClick={() => setLocale(next.value)}
+      className={HEADER_CHIP_CLASS}
+      aria-label={label}
+      title={label}
     >
-      {options.map(({ value, label }, index) => (
-        <span key={value} className="inline-flex items-center">
-          {index > 0 && (
-            <span className="px-1 text-stone-300 select-none" aria-hidden>
-              {SEP}
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={() => setLocale(value)}
-            className={`border-b py-2 transition-colors hover:text-stone-700 ${
-              locale === value
-                ? "border-stone-800 text-stone-800"
-                : "border-transparent text-stone-500"
-            }`}
-          >
-            {label}
-          </button>
-        </span>
-      ))}
-    </div>
+      <span>{current.label}</span>
+    </button>
   );
 }

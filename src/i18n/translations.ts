@@ -1,5 +1,14 @@
 export const translations = {
   appName: { en: "Find Colors", "zh-Hans": "找颜色", "zh-Hant": "找顏色" },
+  theme: {
+    label: { en: "Theme", "zh-Hans": "主题", "zh-Hant": "主題" },
+    light: { en: "Light", "zh-Hans": "浅色", "zh-Hant": "淺色" },
+    dark: { en: "Dark", "zh-Hans": "深色", "zh-Hant": "深色" },
+    system: { en: "System", "zh-Hans": "系统", "zh-Hant": "系統" },
+  },
+  language: {
+    label: { en: "Language", "zh-Hans": "语言", "zh-Hant": "語言" },
+  },
   home: {
     chooseDifficulty: {
       en: "Choose difficulty",
@@ -153,6 +162,7 @@ export const translations = {
   },
   records: {
     title: { en: "My records", "zh-Hans": "我的记录", "zh-Hant": "我的記錄" },
+    titleShort: { en: "Records", "zh-Hans": "记录", "zh-Hant": "記錄" },
     back: { en: "Back", "zh-Hans": "返回", "zh-Hant": "返回" },
     sortByTime: {
       en: "Sort by time",

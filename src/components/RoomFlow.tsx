@@ -336,7 +336,7 @@ export function RoomFlow({ code, onImmersiveChange }: RoomFlowProps) {
 
   if (phase === "loading" || !room || !displayRoom) {
     return (
-      <p className="py-12 text-center text-sm text-stone-400">
+      <p className="py-12 text-center text-sm text-[var(--color-ink-muted)]">
         {t("room.loadingRoom")}
       </p>
     );

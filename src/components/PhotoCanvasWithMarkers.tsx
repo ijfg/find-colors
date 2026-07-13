@@ -475,7 +475,7 @@ export function PhotoCanvasWithMarkers({
 
   const comparisonPanel = activeIndex !== null && (
     <div
-      className={`relative rounded-xl bg-white/95 shadow-lg ring-1 ring-stone-200 backdrop-blur-sm pointer-events-auto ${
+      className={`relative rounded-xl bg-[var(--color-overlay)] shadow-lg ring-1 ring-[var(--color-border)] backdrop-blur-sm pointer-events-auto ${
         compact ? "w-max max-w-full p-2.5 pt-3" : "px-3 py-2.5"
       }`}
       onClick={(e) => e.stopPropagation()}
@@ -486,32 +486,32 @@ export function PhotoCanvasWithMarkers({
         <div
           className={`flex flex-col items-center gap-1.5 ${
             compact
-              ? "rounded-lg bg-stone-50 px-2 py-2 ring-1 ring-stone-200"
+              ? "rounded-lg bg-[var(--color-surface-muted)] px-2 py-2 ring-1 ring-[var(--color-border)]"
               : ""
           }`}
         >
-          <span className="text-center text-[11px] font-medium leading-none text-stone-500">
+          <span className="text-center text-[11px] font-medium leading-none text-[var(--color-ink-muted)]">
             {targetLabel}
           </span>
           <canvas
             ref={targetCropRef}
-            className="block shrink-0 rounded-md ring-1 ring-inset ring-stone-300"
+            className="block shrink-0 rounded-md ring-1 ring-inset ring-[var(--color-border-strong)]"
             style={{ width: cropSize, height: cropSize }}
             width={cropSize}
             height={cropSize}
           />
-          <span className="font-mono text-[10px] leading-none text-stone-600">
+          <span className="font-mono text-[10px] leading-none text-[var(--color-ink-secondary)]">
             {targetColors[activeIndex]}
           </span>
         </div>
         <div
           className={`flex flex-col items-center gap-1.5 ${
             compact
-              ? "rounded-lg bg-stone-50 px-2 py-2 ring-1 ring-stone-200"
+              ? "rounded-lg bg-[var(--color-surface-muted)] px-2 py-2 ring-1 ring-[var(--color-border)]"
               : ""
           }`}
         >
-          <span className="text-center text-[11px] font-medium leading-none text-stone-500">
+          <span className="text-center text-[11px] font-medium leading-none text-[var(--color-ink-muted)]">
             {yoursLabel}
           </span>
           <canvas
@@ -521,7 +521,7 @@ export function PhotoCanvasWithMarkers({
             width={cropSize}
             height={cropSize}
           />
-          <span className="font-mono text-[10px] leading-none text-stone-600">
+          <span className="font-mono text-[10px] leading-none text-[var(--color-ink-secondary)]">
             {userColors[activeIndex]}
           </span>
         </div>
@@ -529,7 +529,7 @@ export function PhotoCanvasWithMarkers({
       <button
         type="button"
         onClick={() => setActiveIndex(null)}
-        className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-stone-800 text-sm text-white shadow ring-2 ring-white"
+        className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-stone-800 text-sm text-white shadow ring-2 ring-[var(--color-surface)]"
         aria-label={t("game.closeCompare")}
       >
         ×
@@ -555,7 +555,7 @@ export function PhotoCanvasWithMarkers({
         >
           <canvas
             ref={canvasRef}
-            className={`block ring-1 ring-stone-200 ${
+            className={`block ring-1 ring-[var(--color-border)] ${
               fillContainer ? "rounded-none" : "rounded-xl"
             }`}
           />

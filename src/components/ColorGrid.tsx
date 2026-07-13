@@ -71,10 +71,10 @@ function renderGridCells(
           ${interactive ? "cursor-pointer" : "cursor-default"}
           ${
             interactive && !isSelected
-              ? "hover:ring-2 hover:ring-stone-300"
+              ? "hover:ring-2 hover:ring-[var(--color-border-strong)]"
               : ""
           }
-          ${isSelected ? `ring-2 ring-inset ${ringColor}` : "ring-1 ring-inset ring-stone-200"}
+          ${isSelected ? `ring-2 ring-inset ${ringColor}` : "ring-1 ring-inset ring-[var(--color-border)]"}
           ${isEmpty ? emptyClassName : ""}
         `}
         style={isEmpty ? undefined : { backgroundColor: color }}
@@ -101,13 +101,13 @@ export function ColorGrid({
 }: ColorGridProps) {
   useLocale();
   const ringColor =
-    selectedTone === "amber" ? "ring-amber-500" : "ring-stone-800";
+    selectedTone === "amber" ? "ring-amber-500" : "ring-[var(--color-ink)]";
 
   function cellRingClass(isSelected: boolean): string {
     if (isSelected) {
       return `ring-2 ring-inset ${ringColor}`;
     }
-    return "ring-1 ring-inset ring-stone-200";
+    return "ring-1 ring-inset ring-[var(--color-border)]";
   }
 
   const total = dim * dim;
@@ -121,7 +121,7 @@ export function ColorGrid({
         data-preserve-selection
       >
         {label && (
-          <span className="shrink-0 text-center text-[10px] font-semibold uppercase leading-tight tracking-wide text-stone-500">
+          <span className="shrink-0 text-center text-[10px] font-semibold uppercase leading-tight tracking-wide text-[var(--color-ink-muted)]">
             {label}
           </span>
         )}
@@ -154,7 +154,7 @@ export function ColorGrid({
                   ${cellRingClass(isSelected)}
                   ${
                     isEmpty
-                      ? "border border-dashed border-stone-300 bg-stone-50"
+                      ? "border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-muted)]"
                       : ""
                   }
                 `}
@@ -182,7 +182,7 @@ export function ColorGrid({
         data-preserve-selection
       >
         {label && (
-          <p className="text-xs font-medium uppercase tracking-wider text-stone-500">
+          <p className="text-xs font-medium uppercase tracking-wider text-[var(--color-ink-muted)]">
             {label}
           </p>
         )}
@@ -201,7 +201,7 @@ export function ColorGrid({
             onSelectCell,
             ringColor,
             "relative rounded-sm transition-all",
-            "border border-dashed border-stone-300 bg-stone-50",
+            "border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-muted)]",
           )}
         </div>
       </div>
@@ -217,7 +217,7 @@ export function ColorGrid({
         data-preserve-selection
       >
         {label && (
-          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-stone-500">
+          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[var(--color-ink-muted)]">
             {label}
           </span>
         )}
@@ -250,7 +250,7 @@ export function ColorGrid({
                   ${cellRingClass(isSelected)}
                   ${
                     isEmpty
-                      ? "border border-dashed border-stone-300 bg-stone-50"
+                      ? "border border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-muted)]"
                       : ""
                   }
                 `}
@@ -273,7 +273,7 @@ export function ColorGrid({
       data-preserve-selection
     >
       {label && (
-        <p className="text-xs font-medium uppercase tracking-wider text-stone-500">
+        <p className="text-xs font-medium uppercase tracking-wider text-[var(--color-ink-muted)]">
           {label}
         </p>
       )}
@@ -310,13 +310,13 @@ export function ColorGrid({
                 ${interactive ? "cursor-pointer" : "cursor-default"}
                 ${
                   interactive && !isSelected
-                    ? "hover:scale-105 hover:ring-2 hover:ring-stone-400"
+                    ? "hover:scale-105 hover:ring-2 hover:ring-[var(--color-border-strong)]"
                     : ""
                 }
                 ${isSelected ? `ring-2 ring-inset ${ringColor}` : ""}
                 ${
                   isEmpty
-                    ? "border-2 border-dashed border-stone-300 bg-stone-50"
+                    ? "border-2 border-dashed border-[var(--color-border-strong)] bg-[var(--color-surface-muted)]"
                     : ""
                 }
               `}

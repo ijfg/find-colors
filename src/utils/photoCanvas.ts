@@ -86,8 +86,15 @@ export function drawCenteredCrop(
   const srcTop = cy - half;
   const srcSize = half * 2;
 
+  let fill = options?.fillStyle;
+  if (!fill && typeof window !== "undefined") {
+    fill = getComputedStyle(document.documentElement)
+      .getPropertyValue("--color-border")
+      .trim();
+  }
+
   ctx.imageSmoothingEnabled = options?.imageSmoothingEnabled ?? false;
-  ctx.fillStyle = options?.fillStyle ?? "#e7e5e4";
+  ctx.fillStyle = fill || "#e7e5e4";
   ctx.fillRect(0, 0, displaySize, displaySize);
 
   const clippedLeft = Math.max(0, srcLeft);

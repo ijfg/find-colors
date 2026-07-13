@@ -17,7 +17,7 @@ export function MiniPalette({
       {colors.map((color, i) => (
         <div
           key={i}
-          className={`${cell} shrink-0 rounded-sm ring-1 ring-inset ring-stone-200/80`}
+          className={`${cell} shrink-0 rounded-sm ring-1 ring-inset ring-[var(--color-border)]/80`}
           style={{ backgroundColor: color || "#e7e5e4" }}
           title={color || undefined}
         />

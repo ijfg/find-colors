@@ -8,6 +8,7 @@ import { PhotoCanvasPicker } from "./PhotoCanvasPicker";
 import { PhotoCanvasWithMarkers } from "./PhotoCanvasWithMarkers";
 import { RoomPlayerStatus } from "./RoomPlayerStatus";
 import { ScoreResult } from "./ScoreResult";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import { computeResult } from "../utils/scoring";
 import { compressToThumbnail, createRecordId, saveRecord } from "../utils/storage";
 import type { PersistedGameState } from "../utils/storage";
@@ -60,9 +61,9 @@ function nextEmptyIndex(colors: string[], after: number): number | null {
 }
 
 const DESKTOP_ZOOM_BAR = 60;
-const MOBILE_SHELL = "fixed inset-0 z-40 overflow-hidden bg-[#f7f5f2]";
+const MOBILE_SHELL = "fixed inset-0 z-40 overflow-hidden bg-[var(--color-shell)]";
 const DESKTOP_SHELL =
-  "fixed inset-0 z-40 flex flex-row overflow-hidden bg-[#f7f5f2]";
+  "fixed inset-0 z-40 flex flex-row overflow-hidden bg-[var(--color-shell)]";
 
 export function ColorGuessingGame({
   photoDataUrl,
@@ -124,7 +125,7 @@ export function ColorGuessingGame({
   function renderResultsHeader(compact = false) {
     return (
       <div
-        className={`sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-stone-200/80 bg-[#f7f5f2]/95 backdrop-blur-sm ${
+        className={`sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-[var(--color-border)]/80 bg-[var(--color-shell)]/95 backdrop-blur-sm ${
           compact ? "px-3 py-2" : "px-4 py-3"
         }`}
       >
@@ -133,15 +134,18 @@ export function ColorGuessingGame({
             {t("score.resultsTitle")}
           </h2>
         </div>
-        {onBackHome && (
-          <button
-            type="button"
-            onClick={onBackHome}
-            className="shrink-0 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 sm:px-3 sm:text-sm"
-          >
-            {t("room.backHome")}
-          </button>
-        )}
+        <div className="flex shrink-0 items-center gap-2">
+          <ThemeSwitcher />
+          {onBackHome && (
+            <button
+              type="button"
+              onClick={onBackHome}
+              className="shrink-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-xs font-medium text-[var(--color-ink-secondary)] hover:bg-[var(--color-bg)] sm:px-3 sm:text-sm"
+            >
+              {t("room.backHome")}
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -286,8 +290,8 @@ export function ColorGuessingGame({
                 : "w-full px-4 py-2.5 text-sm sm:w-auto"
           } ${
             allFilled && !saving
-              ? "bg-stone-800 text-white hover:bg-stone-700"
-              : "cursor-not-allowed bg-stone-200 text-stone-400"
+              ? "bg-[var(--color-button)] text-[var(--color-button-text)] hover:bg-[var(--color-button-hover)]"
+              : "cursor-not-allowed bg-[var(--color-border)] text-[var(--color-ink-muted)]"
           }`}
         >
           <span>{t("game.submit")}</span>
@@ -301,7 +305,7 @@ export function ColorGuessingGame({
         <button
           type="button"
           onClick={handleClear}
-          className={`min-h-11 rounded-lg bg-white px-3 py-2 text-sm font-medium text-stone-600 ring-1 ring-stone-300 transition-colors hover:bg-stone-50 ${
+          className={`min-h-11 rounded-lg bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-ink-secondary)] ring-1 ring-[var(--color-border-strong)] transition-colors hover:bg-[var(--color-bg)] ${
             vertical
               ? "w-full px-3 py-2 text-sm"
               : mobile
@@ -316,7 +320,7 @@ export function ColorGuessingGame({
         <button
           type="button"
           onClick={onNewPhoto}
-          className={`min-h-11 rounded-lg bg-white px-3 py-2 text-sm font-medium text-stone-600 ring-1 ring-stone-300 transition-colors hover:bg-stone-50 ${
+          className={`min-h-11 rounded-lg bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-ink-secondary)] ring-1 ring-[var(--color-border-strong)] transition-colors hover:bg-[var(--color-bg)] ${
             vertical
               ? "w-full px-3 py-2 text-sm"
               : mobile
@@ -444,7 +448,7 @@ export function ColorGuessingGame({
     setSaveError(null);
   }
 
-  function renderPickingHint(className = "text-center text-[11px] leading-snug text-stone-500") {
+  function renderPickingHint(className = "text-center text-[11px] leading-snug text-[var(--color-ink-muted)]") {
     if (submitted) return null;
 
     return (
@@ -461,7 +465,7 @@ export function ColorGuessingGame({
               e.stopPropagation();
               handleClearCell(activeIndex);
             }}
-            className="ml-2 text-stone-400 underline"
+            className="ml-2 text-[var(--color-ink-muted)] underline"
           >
             {t("game.clearCell")}
           </button>
@@ -488,7 +492,7 @@ export function ColorGuessingGame({
           >
             {renderPhotoCanvas()}
           </div>
-          <div className="flex h-full w-[min(48%,20rem)] shrink-0 flex-col overflow-hidden border-l border-stone-200/80 bg-[#f7f5f2]">
+          <div className="flex h-full w-[min(48%,20rem)] shrink-0 flex-col overflow-hidden border-l border-[var(--color-border)]/80 bg-[var(--color-shell)]">
             {renderSoloScorePanel({ compactScore: true, tightHeader: true })}
           </div>
         </div>
@@ -509,7 +513,7 @@ export function ColorGuessingGame({
       >
         <div
           style={sidebarStyle}
-          className="flex h-full shrink-0 grow-0 flex-col overflow-hidden border-r border-stone-200/80 bg-white/95 backdrop-blur-sm"
+          className="flex h-full shrink-0 grow-0 flex-col overflow-hidden border-r border-[var(--color-border)]/80 bg-[var(--color-overlay)] backdrop-blur-sm"
         >
           <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden py-1.5 pl-[max(0.5rem,env(safe-area-inset-left))] pr-1.5 pt-[max(0.35rem,env(safe-area-inset-top))]">
             <ColorGrid
@@ -537,7 +541,7 @@ export function ColorGuessingGame({
         <div
           ref={bottomChromeRef}
           style={sidebarStyle}
-          className="flex h-full shrink-0 grow-0 flex-col overflow-hidden border-l border-stone-200/80 bg-white/95 backdrop-blur-sm"
+          className="flex h-full shrink-0 grow-0 flex-col overflow-hidden border-l border-[var(--color-border)]/80 bg-[var(--color-overlay)] backdrop-blur-sm"
         >
           <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-x-hidden py-1.5 pl-1.5 pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-[max(0.35rem,env(safe-area-inset-top))]">
             <ColorGrid
@@ -563,7 +567,7 @@ export function ColorGuessingGame({
     if (!submitted) return null;
 
     return (
-      <p className="shrink-0 px-4 pt-2 pb-4 text-center text-xs text-stone-500">
+      <p className="shrink-0 px-4 pt-2 pb-4 text-center text-xs text-[var(--color-ink-muted)]">
         {t("game.legend")}
       </p>
     );
@@ -585,7 +589,7 @@ export function ColorGuessingGame({
           {renderDesktopMarkerLegend()}
         </div>
 
-        <div className="flex w-[clamp(18rem,32vw,24rem)] shrink-0 flex-col border-l border-stone-200/50 bg-[#f7f5f2]">
+        <div className="flex w-[clamp(18rem,32vw,24rem)] shrink-0 flex-col border-l border-[var(--color-border)]/50 bg-[var(--color-shell)]">
           {submitted && result && !hideScoreUntilReveal ? (
             renderSoloScorePanel({ compactScore: true })
           ) : (
@@ -612,7 +616,7 @@ export function ColorGuessingGame({
                   allowEmpty
                   selectedTone="amber"
                 />
-                {renderPickingHint("text-center text-xs leading-snug text-stone-500")}
+                {renderPickingHint("text-center text-xs leading-snug text-[var(--color-ink-muted)]")}
               </div>
 
               {roomStatus && (
@@ -650,7 +654,7 @@ export function ColorGuessingGame({
           </div>
           <div
             ref={bottomChromeRef}
-            className="flex max-h-[55vh] min-h-0 shrink-0 flex-col overflow-hidden border-t border-stone-200/80 bg-[#f7f5f2]"
+            className="flex max-h-[55vh] min-h-0 shrink-0 flex-col overflow-hidden border-t border-[var(--color-border)]/80 bg-[var(--color-shell)]"
           >
             {renderSoloScorePanel({ compactScore: true, tightHeader: true })}
           </div>
@@ -663,7 +667,7 @@ export function ColorGuessingGame({
         className={`${MOBILE_SHELL} flex flex-col`}
         onPointerDownCapture={handleBackgroundPointerDown}
       >
-        <div className="shrink-0 border-b border-stone-200/80 bg-white/95 px-[max(0.75rem,env(safe-area-inset-left))] py-1.5 pt-[max(0.35rem,env(safe-area-inset-top))] backdrop-blur-sm pr-[max(0.75rem,env(safe-area-inset-right))]">
+        <div className="shrink-0 border-b border-[var(--color-border)]/80 bg-[var(--color-overlay)] px-[max(0.75rem,env(safe-area-inset-left))] py-1.5 pt-[max(0.35rem,env(safe-area-inset-top))] backdrop-blur-sm pr-[max(0.75rem,env(safe-area-inset-right))]">
           <ColorGrid
             colors={targetColors}
             dim={dim}
@@ -672,7 +676,7 @@ export function ColorGuessingGame({
             selectedIndex={activeIndex}
             onSelectCell={handleSelectTarget}
           />
-          {!mobileLandscapeLayout && renderPickingHint("mt-1.5 text-[11px] text-stone-500")}
+          {!mobileLandscapeLayout && renderPickingHint("mt-1.5 text-[11px] text-[var(--color-ink-muted)]")}
         </div>
 
         <div
@@ -684,7 +688,7 @@ export function ColorGuessingGame({
 
         <div
           ref={bottomChromeRef}
-          className="shrink-0 space-y-1.5 border-t border-stone-200/80 bg-white/95 px-[max(0.75rem,env(safe-area-inset-left))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-sm pr-[max(0.75rem,env(safe-area-inset-right))]"
+          className="shrink-0 space-y-1.5 border-t border-[var(--color-border)]/80 bg-[var(--color-overlay)] px-[max(0.75rem,env(safe-area-inset-left))] pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-sm pr-[max(0.75rem,env(safe-area-inset-right))]"
         >
           <ColorGrid
             colors={userColors}

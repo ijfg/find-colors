@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Position } from "../types";
 import { deltaE } from "../utils/scoring";
 import { t, useLocale } from "../i18n";
+import { useResolvedTheme } from "../theme";
 import { ScoreDenom } from "./ScoreResult";
 import {
   computePhotoCanvasLayout,
@@ -45,6 +46,7 @@ function CropTile({
   size?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const resolvedTheme = useResolvedTheme();
 
   useEffect(() => {
     let cancelled = false;
@@ -74,12 +76,12 @@ function CropTile({
     return () => {
       cancelled = true;
     };
-  }, [photoDataUrl, position, hex, size]);
+  }, [photoDataUrl, position, hex, size, resolvedTheme]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="shrink-0 rounded-md ring-1 ring-inset ring-stone-300"
+      className="shrink-0 rounded-md ring-1 ring-inset ring-[var(--color-border-strong)]"
       style={{ width: size, height: size }}
     />
   );
@@ -107,11 +109,11 @@ function DetailColumn({
   return (
     <div
       className={`flex shrink-0 flex-col items-center gap-1 rounded-lg px-2 py-1.5 ${
-        isTarget ? "bg-stone-50 ring-1 ring-stone-200" : ""
+        isTarget ? "bg-[var(--color-surface-muted)] ring-1 ring-[var(--color-border)]" : ""
       }`}
     >
       <span
-        className="max-w-[5rem] truncate text-center text-[11px] font-medium text-stone-600"
+        className="max-w-[5rem] truncate text-center text-[11px] font-medium text-[var(--color-ink-secondary)]"
         title={label}
       >
         {emoji ? `${emoji} ` : ""}
@@ -119,16 +121,16 @@ function DetailColumn({
       </span>
       <CropTile photoDataUrl={photoDataUrl} position={position} hex={hex} />
       <div
-        className="h-8 w-8 shrink-0 rounded-md ring-1 ring-inset ring-stone-200"
+        className="h-8 w-8 shrink-0 rounded-md ring-1 ring-inset ring-[var(--color-border)]"
         style={{ backgroundColor: hex }}
         title={hex}
       />
-      <span className="max-w-[5rem] truncate font-mono text-[9px] text-stone-400">
+      <span className="max-w-[5rem] truncate font-mono text-[9px] text-[var(--color-ink-muted)]">
         {hex}
       </span>
       {score !== undefined && de !== undefined && (
-        <span className="text-[10px] text-stone-500">
-          <span className="font-mono font-semibold text-stone-800">{score}</span>
+        <span className="text-[10px] text-[var(--color-ink-muted)]">
+          <span className="font-mono font-semibold text-[var(--color-ink)]">{score}</span>
           <ScoreDenom className="text-[9px]" />
           {" · "}ΔE {de.toFixed(1)}
         </span>
@@ -163,7 +165,7 @@ function DetailRow({
   return (
     <div
       className={`flex items-center gap-2.5 rounded-lg px-2 py-2 ${
-        isTarget ? "bg-stone-50 ring-1 ring-stone-200" : "ring-1 ring-stone-100"
+        isTarget ? "bg-[var(--color-surface-muted)] ring-1 ring-[var(--color-border)]" : "ring-1 ring-[var(--color-border)]"
       }`}
     >
       <CropTile
@@ -173,22 +175,22 @@ function DetailRow({
         size={tile}
       />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-medium text-stone-700" title={label}>
+        <p className="truncate text-xs font-medium text-[var(--color-ink-secondary)]" title={label}>
           {emoji ? `${emoji} ` : ""}
           {label}
         </p>
         <div className="mt-1 flex min-w-0 items-center gap-2">
           <div
-            className="h-7 w-7 shrink-0 rounded-md ring-1 ring-inset ring-stone-200"
+            className="h-7 w-7 shrink-0 rounded-md ring-1 ring-inset ring-[var(--color-border)]"
             style={{ backgroundColor: hex }}
             title={hex}
           />
-          <span className="truncate font-mono text-[10px] text-stone-400">{hex}</span>
+          <span className="truncate font-mono text-[10px] text-[var(--color-ink-muted)]">{hex}</span>
         </div>
       </div>
       {score !== undefined && de !== undefined && (
-        <div className="shrink-0 text-right text-[10px] text-stone-500">
-          <p className="font-mono text-sm font-semibold text-stone-800">
+        <div className="shrink-0 text-right text-[10px] text-[var(--color-ink-muted)]">
+          <p className="font-mono text-sm font-semibold text-[var(--color-ink)]">
             {score}
             <ScoreDenom className="text-[10px]" />
           </p>
@@ -214,7 +216,7 @@ export function RoomCellDetailStrip({
 
   return (
     <div
-      className="relative rounded-xl border border-stone-200 bg-white/95 p-2 shadow-lg backdrop-blur-sm"
+      className="relative rounded-xl border border-[var(--color-border)] bg-[var(--color-overlay)] p-2 shadow-lg backdrop-blur-sm"
       data-preserve-selection
     >
       {layout === "vertical" ? (
@@ -254,7 +256,7 @@ export function RoomCellDetailStrip({
               hex={targetColor}
               isTarget
             />
-            <div className="mx-0.5 w-px shrink-0 self-stretch bg-stone-200" />
+            <div className="mx-0.5 w-px shrink-0 self-stretch bg-[var(--color-border)]" />
             {players.map((player) => {
               const de = deltaE(targetColor, player.userColor);
               return (
@@ -276,7 +278,7 @@ export function RoomCellDetailStrip({
       <button
         type="button"
         onClick={onClose}
-        className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-stone-800 text-xs text-white shadow ring-2 ring-white"
+        className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-stone-800 text-xs text-white shadow ring-2 ring-[var(--color-surface)]"
         aria-label={t("game.closeCompare")}
       >
         ×

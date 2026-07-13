@@ -22,13 +22,13 @@ export function RoomWaitingView({ room, statusPanel }: RoomWaitingViewProps) {
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-stone-800">
+          <p className="text-sm font-semibold text-[var(--color-ink)]">
             {t("room.submittedCount", {
               submitted: String(room.submittedCount),
               total: String(room.playerCount),
             })}
           </p>
-          <div className="mx-auto h-2 max-w-xs overflow-hidden rounded-full bg-stone-200">
+          <div className="mx-auto h-2 max-w-xs overflow-hidden rounded-full bg-[var(--color-border)]">
             <div
               className="h-full rounded-full bg-teal-500 transition-all duration-500"
               style={{ width: `${Math.round(progress * 100)}%` }}

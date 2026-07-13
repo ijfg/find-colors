@@ -6,7 +6,7 @@ interface HomeViewProps {
 }
 
 const homeBtn =
-  "inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[var(--color-border)] bg-white px-4 py-2.5 text-base font-medium transition-colors hover:bg-[var(--color-bg)]";
+  "inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-base font-medium transition-colors hover:bg-[var(--color-bg)]";
 
 export function HomeView({ onSoloStart, onRoomPlay }: HomeViewProps) {
   useLocale();
@@ -20,17 +20,17 @@ export function HomeView({ onSoloStart, onRoomPlay }: HomeViewProps) {
           <button
             type="button"
             disabled
-            className={`${homeBtn} flex-col py-3 text-stone-400`}
+            className={`${homeBtn} flex-col py-3 text-[var(--color-ink-muted)]`}
           >
             {t("home.dailyChallenge")}
             <span className="mt-0.5 text-xs font-normal">{t("home.comingSoon")}</span>
           </button>
 
-          <button type="button" onClick={onSoloStart} className={`${homeBtn} text-stone-700`}>
+          <button type="button" onClick={onSoloStart} className={`${homeBtn} text-[var(--color-ink-secondary)]`}>
             {t("home.soloGame")}
           </button>
 
-          <button type="button" onClick={onRoomPlay} className={`${homeBtn} text-stone-700`}>
+          <button type="button" onClick={onRoomPlay} className={`${homeBtn} text-[var(--color-ink-secondary)]`}>
             {t("room.playWithFriends")}
           </button>
         </div>

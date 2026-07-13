@@ -14,7 +14,7 @@ export function PhotoUpload({ onSelect, loading }: PhotoUploadProps) {
         group flex cursor-pointer flex-col items-center justify-center
         rounded-xl border border-dashed border-[var(--color-border)]
         bg-[var(--color-surface)]/50 px-6 py-14
-        transition-colors hover:border-[#c9c4bc] hover:bg-[var(--color-surface)]
+        transition-colors hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface)]
         active:bg-[var(--color-surface)]
         sm:py-16
         ${loading ? "pointer-events-none opacity-50" : ""}

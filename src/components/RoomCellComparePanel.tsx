@@ -72,7 +72,7 @@ function CropCanvas({
   return (
     <canvas
       ref={canvasRef}
-      className="shrink-0 rounded-md ring-1 ring-inset ring-stone-300"
+      className="shrink-0 rounded-md ring-1 ring-inset ring-[var(--color-border-strong)]"
       style={{ width: TILE, height: TILE }}
     />
   );
@@ -81,7 +81,7 @@ function CropCanvas({
 function ColorSwatch({ hex }: { hex: string }) {
   return (
     <div
-      className="shrink-0 rounded-md ring-1 ring-inset ring-stone-200"
+      className="shrink-0 rounded-md ring-1 ring-inset ring-[var(--color-border)]"
       style={{ width: TILE, height: TILE, backgroundColor: hex }}
       title={hex}
     />
@@ -110,7 +110,7 @@ function CompareBlock({
   return (
     <div className="flex flex-col items-center gap-2">
       <span
-        className="max-w-full truncate text-center text-[11px] font-medium text-stone-600"
+        className="max-w-full truncate text-center text-[11px] font-medium text-[var(--color-ink-secondary)]"
         style={accent ? { color: accent } : undefined}
       >
         {label}
@@ -119,10 +119,10 @@ function CompareBlock({
         <CropCanvas photoDataUrl={photoDataUrl} position={position} hex={hex} />
         <ColorSwatch hex={hex} />
       </div>
-      <span className="font-mono text-[10px] text-stone-400">{hex}</span>
+      <span className="font-mono text-[10px] text-[var(--color-ink-muted)]">{hex}</span>
       {showStats && score !== undefined && de !== undefined && (
-        <div className="text-center text-[11px] leading-tight text-stone-500">
-          <div className="font-mono font-semibold text-stone-800">{score}</div>
+        <div className="text-center text-[11px] leading-tight text-[var(--color-ink-muted)]">
+          <div className="font-mono font-semibold text-[var(--color-ink)]">{score}</div>
           <div>ΔE {de.toFixed(1)}</div>
         </div>
       )}
@@ -142,12 +142,12 @@ export function RoomCellComparePanel({
   if (players.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-white p-4">
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
       <p className="text-caption mb-4 text-xs font-medium">
         {t("room.cellCompareTitle", { n: String(cellIndex + 1) })}
       </p>
 
-      <div className="flex flex-col items-center border-b border-dashed border-stone-200 pb-5">
+      <div className="flex flex-col items-center border-b border-dashed border-[var(--color-border)] pb-5">
         <CompareBlock
           label={t("score.targetSmall")}
           photoDataUrl={photoDataUrl}

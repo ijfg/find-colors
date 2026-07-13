@@ -5,6 +5,8 @@ import { ColorGuessingGame } from "./components/ColorGuessingGame";
 import { HomeView } from "./components/HomeView";
 import { SoloSetupView } from "./components/SoloSetupView";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
+import { ThemeSwitcher, HEADER_CHIP_CLASS } from "./components/ThemeSwitcher";
+import { useSystemThemeSync } from "./theme";
 import { RecordsView } from "./components/RecordsView";
 import { RoomCreateView } from "./components/RoomCreateView";
 import { RoomFlow } from "./components/RoomFlow";
@@ -60,6 +62,7 @@ function useAppRoute(): AppRoute {
 
 export default function App() {
   const locale = useLocale();
+  useSystemThemeSync();
   const route = useAppRoute();
   const initial = readInitialSoloState();
   const [soloView, setSoloView] = useState<SoloView>(
@@ -333,14 +336,15 @@ export default function App() {
             )}
             {transparentHeader && <div className="flex-1" aria-hidden />}
             <div className="flex shrink-0 items-center gap-2">
+              <ThemeSwitcher />
               <LanguageSwitcher />
               {showRecordsButton && (
                 <button
                   type="button"
                   onClick={openRecords}
-                  className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)]"
+                  className={HEADER_CHIP_CLASS}
                 >
-                  {t("records.title")}
+                  {t("records.titleShort")}
                   {records.length > 0 && (
                     <span className="tabular-nums">({records.length})</span>
                   )}

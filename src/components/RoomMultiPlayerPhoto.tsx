@@ -136,7 +136,7 @@ export function RoomMultiPlayerPhoto({
     >
       <canvas
         ref={canvasRef}
-        className={`block ring-1 ring-stone-200 ${
+        className={`block ring-1 ring-[var(--color-border)] ${
           fillContainer ? "rounded-none" : "rounded-xl"
         }`}
       />

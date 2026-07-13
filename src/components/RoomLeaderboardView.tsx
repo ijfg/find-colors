@@ -11,6 +11,7 @@ import { navigate } from "../lib/routing";
 import { MiniPalette } from "./MiniPalette";
 import { RoomMultiPlayerPhoto } from "./RoomMultiPlayerPhoto";
 import { ScoreDenom, ScoreResult } from "./ScoreResult";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 interface RoomLeaderboardViewProps {
   room: RoomPublicView;
@@ -39,7 +40,7 @@ function entryToResult(
 }
 
 function rankAccent(_rank: number): string {
-  return "border border-[var(--color-border)] bg-white/90";
+  return "border border-[var(--color-border)] bg-[var(--color-surface)]/90";
 }
 
 function rankBadge(rank: number): string {
@@ -171,7 +172,7 @@ export function RoomLeaderboardView({
                 sideBySide ? "gap-2 px-2.5 py-2.5" : "gap-3 px-3 py-3"
               } ${rankAccent(entry.rank)} ${
                 active
-                  ? "ring-2 ring-stone-400 ring-offset-1"
+                  ? "ring-2 ring-[var(--color-border-strong)] ring-offset-1"
                   : canSelect
                     ? "hover:brightness-[0.98]"
                     : "opacity-60"
@@ -185,7 +186,7 @@ export function RoomLeaderboardView({
                     ? sideBySide
                       ? "text-lg"
                       : "text-xl"
-                    : "text-base font-bold tabular-nums text-stone-400"
+                    : "text-base font-bold tabular-nums text-[var(--color-ink-muted)]"
                 }`}
                 aria-label={`#${entry.rank}`}
               >
@@ -200,16 +201,16 @@ export function RoomLeaderboardView({
                   >
                     {emoji}
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-stone-800">
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[var(--color-ink)]">
                     {entry.displayName}
                     {isMe && (
-                      <span className="ml-1 text-[10px] font-normal text-stone-400">
+                      <span className="ml-1 text-[10px] font-normal text-[var(--color-ink-muted)]">
                         ({t("room.you")})
                       </span>
                     )}
                   </span>
                   <span
-                    className={`text-score shrink-0 tabular-nums text-stone-800 ${
+                    className={`text-score shrink-0 tabular-nums text-[var(--color-ink)] ${
                       sideBySide ? "text-base" : "text-xl"
                     }`}
                   >
@@ -221,7 +222,7 @@ export function RoomLeaderboardView({
                         />
                       </>
                     ) : (
-                      <span className="text-sm font-normal text-stone-400">
+                      <span className="text-sm font-normal text-[var(--color-ink-muted)]">
                         {t("room.dnf")}
                       </span>
                     )}
@@ -243,7 +244,7 @@ export function RoomLeaderboardView({
 
   return (
     <div
-      className={`fixed inset-0 z-40 flex bg-[#f7f5f2] ${
+      className={`fixed inset-0 z-40 flex bg-[var(--color-shell)] ${
         sideBySide
           ? "flex-row overflow-hidden"
           : "flex-col md:flex-row md:overflow-hidden"
@@ -271,7 +272,7 @@ export function RoomLeaderboardView({
             fillContainer
           />
         ) : (
-          <p className="flex flex-1 items-center justify-center text-sm text-stone-400">
+          <p className="flex flex-1 items-center justify-center text-sm text-[var(--color-ink-muted)]">
             {t("room.loadingRoom")}
           </p>
         )}
@@ -316,7 +317,7 @@ export function RoomLeaderboardView({
       </div>
 
       <aside
-        className={`flex min-h-0 min-w-0 flex-col bg-[#f7f5f2] transition-all duration-300 ease-out ${
+        className={`flex min-h-0 min-w-0 flex-col bg-[var(--color-shell)] transition-all duration-300 ease-out ${
           photoFocused
             ? "pointer-events-none absolute inset-x-0 bottom-0 z-10 max-h-[42%] translate-y-[108%] opacity-0 md:inset-y-0 md:left-auto md:right-0 md:max-h-none md:w-[clamp(22rem,38vw,32rem)] md:translate-x-[108%] md:translate-y-0"
             : sideBySide
@@ -326,7 +327,7 @@ export function RoomLeaderboardView({
         aria-hidden={photoFocused}
       >
         <div
-          className={`sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-stone-200/80 bg-[#f7f5f2]/95 backdrop-blur-sm ${
+          className={`sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-[var(--color-border)]/80 bg-[var(--color-shell)]/95 backdrop-blur-sm ${
             sideBySide ? "px-3 py-2" : "px-4 py-3"
           }`}
         >
@@ -341,16 +342,19 @@ export function RoomLeaderboardView({
               })}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              onLeave();
-              navigate("/");
-            }}
-            className="shrink-0 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 sm:px-3 sm:text-sm"
-          >
-            {t("room.backHome")}
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <ThemeSwitcher />
+            <button
+              type="button"
+              onClick={() => {
+                onLeave();
+                navigate("/");
+              }}
+              className="shrink-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-xs font-medium text-[var(--color-ink-secondary)] hover:bg-[var(--color-bg)] sm:px-3 sm:text-sm"
+            >
+              {t("room.backHome")}
+            </button>
+          </div>
         </div>
 
         <div
@@ -372,7 +376,7 @@ export function RoomLeaderboardView({
             </div>
 
             {selectedResult && selectedEntry && (
-              <div className="min-w-0 border-t border-stone-200/80 pt-4">
+              <div className="min-w-0 border-t border-[var(--color-border)]/80 pt-4">
                 <p className="text-caption mb-2 text-[10px] font-medium uppercase tracking-wide">
                   {t("score.total")}
                 </p>

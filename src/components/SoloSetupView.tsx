@@ -39,7 +39,7 @@ export function SoloSetupView({
         <button
           type="button"
           onClick={onBack}
-          className="mt-6 text-sm text-stone-500 hover:text-stone-700"
+          className="mt-6 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink)]"
         >
           ← {t("records.back")}
         </button>

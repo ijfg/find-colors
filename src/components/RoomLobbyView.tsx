@@ -13,7 +13,7 @@ interface RoomLobbyViewProps {
 }
 
 const actionBtn =
-  "min-h-11 w-full rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-bg)]";
+  "min-h-11 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-bg)]";
 
 export function RoomLobbyView({ room, onStart, onLeave }: RoomLobbyViewProps) {
   useLocale();
@@ -54,7 +54,7 @@ export function RoomLobbyView({ room, onStart, onLeave }: RoomLobbyViewProps) {
         </p>
       </div>
 
-      <div className="rounded-lg border border-[var(--color-border)] bg-white p-4">
+      <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
         <p className="text-caption mb-2 text-xs uppercase tracking-wide">
           {t("room.players")}
         </p>
@@ -62,13 +62,13 @@ export function RoomLobbyView({ room, onStart, onLeave }: RoomLobbyViewProps) {
           {room.players.map((p) => (
             <li
               key={p.playerId}
-              className="flex items-center justify-between text-sm text-stone-700"
+              className="flex items-center justify-between text-sm text-[var(--color-ink-secondary)]"
             >
               <span>
                 <span className="mr-1.5">{getPlayerEmoji(playerEmoji, p.playerId)}</span>
                 {p.displayName}
               </span>
-              <span className="text-xs text-stone-400">
+              <span className="text-xs text-[var(--color-ink-muted)]">
                 {p.submitted ? "✓" : "…"}
               </span>
             </li>
@@ -81,7 +81,7 @@ export function RoomLobbyView({ room, onStart, onLeave }: RoomLobbyViewProps) {
           {copied ? t("room.copied") : t("room.copyLink")}
         </button>
         {copyError && (
-          <p className="break-all text-center text-xs text-stone-500">{shareUrl}</p>
+          <p className="break-all text-center text-xs text-[var(--color-ink-muted)]">{shareUrl}</p>
         )}
         {!iSubmitted && (
           <button type="button" onClick={onStart} className={actionBtn}>
@@ -91,7 +91,7 @@ export function RoomLobbyView({ room, onStart, onLeave }: RoomLobbyViewProps) {
         <button
           type="button"
           onClick={onLeave}
-          className="text-sm text-stone-500 hover:text-stone-700"
+          className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-secondary)]"
         >
           {t("room.leaveRoom")}
         </button>

@@ -76,14 +76,14 @@ export function ScoreResult({
 
   return (
     <div
-      className={`min-w-0 rounded-2xl border border-[var(--color-border-strong)] bg-white ${
+      className={`min-w-0 rounded-2xl border border-[var(--color-border-strong)] bg-[var(--color-surface)] ${
         tight ? "p-2.5" : compact ? "p-3" : "p-4 sm:p-5"
       }`}
       data-preserve-selection
     >
       <div>
         {playerName && (
-          <p className="mb-1 truncate text-sm font-semibold text-stone-800">
+          <p className="mb-1 truncate text-sm font-semibold text-[var(--color-ink)]">
             {playerEmoji && <span className="mr-1">{playerEmoji}</span>}
             {playerName}
           </p>
@@ -105,7 +105,7 @@ export function ScoreResult({
             <ScoreDenom className={tight ? "text-caption text-xs" : "text-caption"} />
           )}
           {rank != null && rankTotal != null && (
-            <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-600">
+            <span className="rounded-full bg-[var(--color-surface-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-ink-secondary)]">
               {t("records.roomRank", {
                 rank: String(rank),
                 total: String(rankTotal),
@@ -125,44 +125,44 @@ export function ScoreResult({
               type="button"
               onClick={() => handleSelectDetail(d.index)}
               aria-pressed={selected}
-              className={`min-w-0 rounded-lg bg-stone-50 text-left transition-all ${
+              className={`min-w-0 rounded-lg bg-[var(--color-surface-muted)] text-left transition-all ${
                 tight ? "p-1.5" : pairedLayout ? "p-2" : "p-3"
               } ${
                 selected
-                  ? "ring-1 ring-inset ring-stone-400"
-                  : "ring-1 ring-inset ring-stone-200 hover:ring-stone-300"
+                  ? "ring-1 ring-inset ring-[var(--color-border-strong)]"
+                  : "ring-1 ring-inset ring-[var(--color-border)] hover:ring-[var(--color-border-strong)]"
               }`}
             >
-              <div className="mb-1.5 flex items-center justify-between gap-1 text-[10px] text-stone-500">
+              <div className="mb-1.5 flex items-center justify-between gap-1 text-[10px] text-[var(--color-ink-muted)]">
                 <span className="truncate">{t("score.cellLabel", { n: d.index + 1 })}</span>
-                <span className="shrink-0 font-mono font-medium text-stone-800">
+                <span className="shrink-0 font-mono font-medium text-[var(--color-ink)]">
                   {d.score}
                   {!hideScoreDenom && (
-                    <span className="font-normal text-stone-500">/100</span>
+                    <span className="font-normal text-[var(--color-ink-muted)]">/100</span>
                   )}
                 </span>
               </div>
               <div className={`flex items-center justify-center ${tight ? "gap-1" : "gap-1.5 sm:gap-2"}`}>
                 <div className="flex min-w-0 flex-col items-center gap-0.5">
                   <div
-                    className={`rounded-sm ring-1 ring-inset ring-stone-300/90 ${swatchSize}`}
+                    className={`rounded-sm ring-1 ring-inset ring-[var(--color-border-strong)]/90 ${swatchSize}`}
                     style={{ backgroundColor: d.target }}
                   />
-                  <span className="whitespace-nowrap text-[9px] font-medium text-stone-500">
+                  <span className="whitespace-nowrap text-[9px] font-medium text-[var(--color-ink-muted)]">
                     {t("score.targetSmall")}
                   </span>
                 </div>
                 <div className="flex min-w-0 flex-col items-center gap-0.5">
                   <div
-                    className={`rounded-sm ring-1 ring-inset ring-stone-300/90 ${swatchSize}`}
+                    className={`rounded-sm ring-1 ring-inset ring-[var(--color-border-strong)]/90 ${swatchSize}`}
                     style={{ backgroundColor: d.guess }}
                   />
-                  <span className="whitespace-nowrap text-[9px] font-medium text-stone-500">
+                  <span className="whitespace-nowrap text-[9px] font-medium text-[var(--color-ink-muted)]">
                     {t("score.yoursSmall")}
                   </span>
                 </div>
               </div>
-              <p className="mt-1 text-center font-mono text-[10px] text-stone-500">
+              <p className="mt-1 text-center font-mono text-[10px] text-[var(--color-ink-muted)]">
                 ΔE {d.deltaE.toFixed(1)}
               </p>
             </button>
@@ -193,7 +193,7 @@ export function ScoreResult({
             type="button"
             onClick={onPlayAgain}
             disabled={playAgainBusy}
-            className={`min-h-11 w-full rounded-lg bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f1d1b] disabled:cursor-wait disabled:opacity-70 ${
+            className={`min-h-11 w-full rounded-lg bg-[var(--color-button)] px-4 py-2 text-sm font-medium text-[var(--color-button-text)] transition-colors hover:bg-[var(--color-button-hover)] disabled:cursor-wait disabled:opacity-70 ${
               compact ? "" : "sm:w-auto"
             }`}
           >
@@ -202,7 +202,7 @@ export function ScoreResult({
           <button
             type="button"
             onClick={onNewPhoto}
-            className={`text-body min-h-11 w-full rounded-lg border border-[var(--color-border)] bg-white px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)] ${
+            className={`text-body min-h-11 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm transition-colors hover:bg-[var(--color-bg)] ${
               compact ? "" : "sm:w-auto"
             }`}
           >
