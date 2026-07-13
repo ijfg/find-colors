@@ -4,7 +4,6 @@ import { t, useLocale } from "../i18n";
 import { ColorGrid } from "./ColorGrid";
 import { MiniPalette } from "./MiniPalette";
 import { PhotoCanvasWithMarkers } from "./PhotoCanvasWithMarkers";
-import { ThemeSwitcher } from "./ThemeSwitcher";
 
 interface RecordsViewProps {
   records: GameRecord[];
@@ -76,7 +75,6 @@ export function RecordsView({
           ← {t("records.back")}
         </button>
         <div className="flex items-center gap-3">
-          <ThemeSwitcher />
           <button
             type="button"
             onClick={() => setSortByScore((v) => !v)}

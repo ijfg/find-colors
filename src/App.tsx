@@ -6,7 +6,6 @@ import { HomeView } from "./components/HomeView";
 import { SoloSetupView } from "./components/SoloSetupView";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { ThemeSwitcher, HEADER_CHIP_CLASS } from "./components/ThemeSwitcher";
-import { useSystemThemeSync } from "./theme";
 import { RecordsView } from "./components/RecordsView";
 import { RoomCreateView } from "./components/RoomCreateView";
 import { RoomFlow } from "./components/RoomFlow";
@@ -62,7 +61,6 @@ function useAppRoute(): AppRoute {
 
 export default function App() {
   const locale = useLocale();
-  useSystemThemeSync();
   const route = useAppRoute();
   const initial = readInitialSoloState();
   const [soloView, setSoloView] = useState<SoloView>(

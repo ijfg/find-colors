@@ -1,6 +1,6 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
-export type ThemePreference = "light" | "dark" | "system";
+export type ThemePreference = "light" | "dark";
 export type ResolvedTheme = "light" | "dark";
 
 const LS_KEY = "color-game-theme";
@@ -16,28 +16,29 @@ function systemPrefersDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
+/** First visit: follow OS. After that, only light/dark are stored. */
 function readPreference(): ThemePreference {
   try {
     const saved = localStorage.getItem(LS_KEY);
-    if (saved === "light" || saved === "dark" || saved === "system") {
+    if (saved === "light" || saved === "dark") {
       return saved;
+    }
+    // Migrate old "system" (or missing) → concrete light/dark from OS
+    if (saved === "system" || saved == null) {
+      const fromSystem: ThemePreference = systemPrefersDark() ? "dark" : "light";
+      if (saved === "system") {
+        localStorage.setItem(LS_KEY, fromSystem);
+      }
+      return fromSystem;
     }
   } catch {
     // ignore
   }
-  return "system";
+  return systemPrefersDark() ? "dark" : "light";
 }
 
 let preference: ThemePreference = readPreference();
-
-function resolve(pref: ThemePreference = preference): ResolvedTheme {
-  if (pref === "system") {
-    return systemPrefersDark() ? "dark" : "light";
-  }
-  return pref;
-}
-
-let resolved: ResolvedTheme = resolve();
+let resolved: ResolvedTheme = preference;
 
 function notify() {
   subscribers.forEach((s) => s());
@@ -68,14 +69,18 @@ export function getResolvedTheme(): ResolvedTheme {
 
 export function setThemePreference(next: ThemePreference): void {
   preference = next;
+  resolved = next;
   try {
     localStorage.setItem(LS_KEY, next);
   } catch {
     // ignore
   }
-  resolved = resolve(next);
   applyThemeToDocument(resolved);
   notify();
+}
+
+export function toggleTheme(): void {
+  setThemePreference(preference === "dark" ? "light" : "dark");
 }
 
 export function useThemePreference(): ThemePreference {
@@ -100,28 +105,17 @@ export function useResolvedTheme(): ResolvedTheme {
   );
 }
 
-/** Keep `system` preference in sync when OS theme changes. */
-export function useSystemThemeSync(): void {
-  const pref = useThemePreference();
-
-  useEffect(() => {
-    if (pref !== "system" || typeof window === "undefined" || !window.matchMedia) {
-      return;
-    }
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => {
-      resolved = resolve("system");
-      applyThemeToDocument(resolved);
-      notify();
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, [pref]);
-}
-
 /** Call once before React render to avoid a light flash. */
 export function initTheme(): void {
   preference = readPreference();
-  resolved = resolve(preference);
+  resolved = preference;
+  // Persist first-visit choice so later OS changes don't flip a settled UI
+  try {
+    if (localStorage.getItem(LS_KEY) == null) {
+      localStorage.setItem(LS_KEY, preference);
+    }
+  } catch {
+    // ignore
+  }
   applyThemeToDocument(resolved);
 }

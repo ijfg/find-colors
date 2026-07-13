@@ -4,7 +4,6 @@ export const translations = {
     label: { en: "Theme", "zh-Hans": "主题", "zh-Hant": "主題" },
     light: { en: "Light", "zh-Hans": "浅色", "zh-Hant": "淺色" },
     dark: { en: "Dark", "zh-Hans": "深色", "zh-Hant": "深色" },
-    system: { en: "System", "zh-Hans": "系统", "zh-Hant": "系統" },
   },
   language: {
     label: { en: "Language", "zh-Hans": "语言", "zh-Hant": "語言" },

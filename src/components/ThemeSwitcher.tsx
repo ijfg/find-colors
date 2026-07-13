@@ -1,47 +1,35 @@
 import { t, useLocale } from "../i18n";
-import {
-  setThemePreference,
-  useThemePreference,
-  type ThemePreference,
-} from "../theme";
+import { toggleTheme, useThemePreference } from "../theme";
 
 /** Shared chrome for header chips (theme / language / records). */
 export const HEADER_CHIP_CLASS =
   "inline-flex min-h-8 shrink-0 items-center gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1 text-xs font-medium text-[var(--color-ink-secondary)] transition-colors hover:bg-[var(--color-bg)]";
 
-const CYCLE: ThemePreference[] = ["light", "dark", "system"];
-
 export function ThemeSwitcher() {
   useLocale();
   const preference = useThemePreference();
-  const next = CYCLE[(CYCLE.indexOf(preference) + 1) % CYCLE.length]!;
   const label =
-    preference === "light"
-      ? t("theme.light")
-      : preference === "dark"
-        ? t("theme.dark")
-        : t("theme.system");
+    preference === "dark" ? t("theme.dark") : t("theme.light");
 
   return (
     <button
       type="button"
-      onClick={() => setThemePreference(next)}
-      className={HEADER_CHIP_CLASS}
+      onClick={() => toggleTheme()}
+      className={`${HEADER_CHIP_CLASS} px-2`}
       aria-label={`${t("theme.label")}: ${label}`}
       title={`${t("theme.label")}: ${label}`}
     >
       <ThemeGlyph preference={preference} />
-      <span>{label}</span>
     </button>
   );
 }
 
-function ThemeGlyph({ preference }: { preference: ThemePreference }) {
+function ThemeGlyph({ preference }: { preference: "light" | "dark" }) {
   if (preference === "dark") {
     return (
       <svg
         viewBox="0 0 24 24"
-        className="h-3.5 w-3.5"
+        className="h-4 w-4"
         fill="currentColor"
         aria-hidden
       >
@@ -49,28 +37,10 @@ function ThemeGlyph({ preference }: { preference: ThemePreference }) {
       </svg>
     );
   }
-  if (preference === "system") {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        className="h-3.5 w-3.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden
-      >
-        <rect x="3" y="4" width="18" height="12" rx="2" />
-        <path d="M8 20h8" />
-        <path d="M12 16v4" />
-      </svg>
-    );
-  }
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-3.5 w-3.5"
+      className="h-4 w-4"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"

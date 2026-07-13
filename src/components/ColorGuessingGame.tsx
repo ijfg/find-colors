@@ -8,7 +8,6 @@ import { PhotoCanvasPicker } from "./PhotoCanvasPicker";
 import { PhotoCanvasWithMarkers } from "./PhotoCanvasWithMarkers";
 import { RoomPlayerStatus } from "./RoomPlayerStatus";
 import { ScoreResult } from "./ScoreResult";
-import { ThemeSwitcher } from "./ThemeSwitcher";
 import { computeResult } from "../utils/scoring";
 import { compressToThumbnail, createRecordId, saveRecord } from "../utils/storage";
 import type { PersistedGameState } from "../utils/storage";
@@ -134,18 +133,15 @@ export function ColorGuessingGame({
             {t("score.resultsTitle")}
           </h2>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <ThemeSwitcher />
-          {onBackHome && (
-            <button
-              type="button"
-              onClick={onBackHome}
-              className="shrink-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-xs font-medium text-[var(--color-ink-secondary)] hover:bg-[var(--color-bg)] sm:px-3 sm:text-sm"
-            >
-              {t("room.backHome")}
-            </button>
-          )}
-        </div>
+        {onBackHome && (
+          <button
+            type="button"
+            onClick={onBackHome}
+            className="shrink-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2.5 py-1.5 text-xs font-medium text-[var(--color-ink-secondary)] hover:bg-[var(--color-bg)] sm:px-3 sm:text-sm"
+          >
+            {t("room.backHome")}
+          </button>
+        )}
       </div>
     );
   }

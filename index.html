@@ -11,12 +11,13 @@
     <script>
       (function () {
         try {
-          var pref = localStorage.getItem("color-game-theme") || "system";
+          var pref = localStorage.getItem("color-game-theme");
           var dark =
             pref === "dark" ||
-            (pref !== "light" &&
+            ((pref == null || pref === "system") &&
               window.matchMedia("(prefers-color-scheme: dark)").matches);
           if (dark) document.documentElement.classList.add("dark");
+          else document.documentElement.classList.remove("dark");
           document.documentElement.style.colorScheme = dark ? "dark" : "light";
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute("content", dark ? "#1c1a18" : "#f3f1ec");
